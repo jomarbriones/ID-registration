@@ -1,5 +1,5 @@
 @forelse ($students as $s)
-<tr data-row-id="{{ $s->id }}" data-number="{{ $s->id_number }}">
+<tr data-row-id="{{ $s->id }}" data-number="{{ $s->id_number }}" data-first="{{ $s->first_name }}" data-last="{{ $s->last_name }}">
   <td><input type="checkbox" class="row-select" data-id="{{ $s->id }}" data-number="{{ $s->id_number }}"></td>
   <td>{{ $s->id_number }}</td>
   <td>{{ $s->first_name }}</td>
@@ -10,6 +10,11 @@
             data-action="preview"
             data-id="{{ $s->id }}"
             data-number="{{ $s->id_number }}">Preview</button>
+    <button type="button" class="chip chip-outline"
+            data-action="refresh"
+            data-id="{{ $s->id }}"
+            data-number="{{ $s->id_number }}"
+            data-name="{{ $s->first_name }} {{ $s->last_name }}">Refresh Photo</button>
   </td>
 </tr>
 @empty

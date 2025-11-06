@@ -33,6 +33,8 @@ class StoreStudentRequest extends FormRequest
                 'dimensions:ratio=1/1,min_width=300,min_height=300'
             ],
 
+            'face_embedding'   => ['required','string'],
+
             // confirmation checkbox
             'confirm'          => ['accepted'],
         ];
@@ -46,6 +48,7 @@ class StoreStudentRequest extends FormRequest
             'guardian_contact.regex' => 'Guardian contact must be 10–11 digits.',
             'gender.in'              => 'Select M or F.',
             'picture_path.dimensions'=> 'Photo must be square (1:1) and at least 300×300px.',
+            'face_embedding.required'=> 'Face verification data is missing. Please re-select your photo.',
         ];
     }
 
@@ -55,6 +58,12 @@ class StoreStudentRequest extends FormRequest
         if ($this->has('guardian_contact')) {
             $this->merge([
                 'guardian_contact' => preg_replace('/\D+/', '', (string)$this->input('guardian_contact'))
+            ]);
+        }
+
+        if ($this->has('face_embedding')) {
+            $this->merge([
+                'face_embedding' => trim((string) $this->input('face_embedding')),
             ]);
         }
     }

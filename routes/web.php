@@ -66,6 +66,7 @@ Route::prefix('admin/students')
         // Mutations
         Route::post('/approve', [StudentController::class, 'approve'])->name('students.approve');
         Route::post('/decline', [StudentController::class, 'decline'])->name('students.decline');
+        Route::post('/refresh-photo', [StudentController::class, 'refreshPhoto'])->name('students.refreshPhoto');
 
         // (Optional) one endpoint that sets any status you support
         Route::post('/update-status', [StudentController::class, 'updateStatus'])->name('students.updateStatus');

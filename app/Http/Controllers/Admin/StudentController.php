@@ -42,6 +42,70 @@ class StudentController extends Controller
     }
 
     /**
+     * Normalize the embedding payload we get from the client.
+     *
+     * @return float[]|null
+     */
+    protected function parseEmbedding(?string $raw): ?array
+    {
+        if ($raw === null || $raw === '') {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        $vector = [];
+        foreach ($decoded as $value) {
+            if (!is_numeric($value)) {
+                return null;
+            }
+            $vector[] = round((float) $value, 8);
+        }
+
+        $expected = (int) config('face.embedding_length', 128);
+        if ($expected > 0 && count($vector) > 0 && count($vector) !== $expected) {
+            // Accept slightly longer vectors but make sure they are not truncated.
+            if (count($vector) < max(16, (int) floor($expected * 0.75))) {
+                return null;
+            }
+        }
+
+        return $vector;
+    }
+
+    /**
+     * Compute cosine similarity between two embeddings.
+     */
+    protected function cosineSimilarity(array $reference, array $candidate): ?float
+    {
+        $length = min(count($reference), count($candidate));
+        if ($length === 0) {
+            return null;
+        }
+
+        $dot = 0.0;
+        $refNorm = 0.0;
+        $candNorm = 0.0;
+
+        for ($i = 0; $i < $length; $i++) {
+            $a = (float) $reference[$i];
+            $b = (float) $candidate[$i];
+            $dot += $a * $b;
+            $refNorm += $a * $a;
+            $candNorm += $b * $b;
+        }
+
+        if ($refNorm <= 0 || $candNorm <= 0) {
+            return null;
+        }
+
+        return $dot / (sqrt($refNorm) * sqrt($candNorm));
+    }
+
+    /**
      * AJAX: Returns rendered HTML rows for pending students.
      */
     public function pending()
@@ -103,16 +167,36 @@ class StudentController extends Controller
     public function submit(StoreStudentRequest $request)
     {
         $data = $request->validated();
+        $embedding = $this->parseEmbedding($request->input('face_embedding'));
 
+        if (!$embedding) {
+            return back()
+                ->withErrors(['picture_path' => 'Face verification data was missing or invalid. Please re-upload your photo.'])
+                ->withInput($request->except('picture_path', 'face_embedding'));
+        }
+
+        $existing = Student::where('id_number', $data['id_number'])->first();
+        $threshold = (float) config('face.similarity_threshold', 0.58);
+        $similarity = null;
+
+        if ($existing && is_array($existing->face_embedding) && count($existing->face_embedding) > 0) {
+            $similarity = $this->cosineSimilarity($existing->face_embedding, $embedding);
+            if ($similarity === null || $similarity < $threshold) {
+                return back()
+                    ->withErrors(['picture_path' => 'Face does not match the existing student photo on file.'])
+                    ->withInput($request->except('picture_path', 'face_embedding'));
+            }
+        }
+
+        $storedPath = null;
         if ($request->hasFile('picture_path')) {
             $ext = strtolower($request->file('picture_path')->getClientOriginalExtension());
             $filename = 'id-' . Str::uuid() . '.' . $ext;
             $stored = $request->file('picture_path')->storeAs('uploads', $filename, 'public');
-            $data['picture_path'] = 'storage/' . ltrim($stored, '/'); // e.g. storage/uploads/uuid.jpg
+            $storedPath = 'storage/' . ltrim($stored, '/'); // e.g. storage/uploads/uuid.jpg
         }
 
-        $student = Student::create([
-            'id_number'        => $data['id_number'],
+        $payload = [
             'first_name'       => $data['first_name'],
             'middle_initial'   => $data['middle_initial'] ?? null,
             'last_name'        => $data['last_name'],
@@ -123,21 +207,101 @@ class StudentController extends Controller
             'parent_address'   => $data['parent_address'] ?? null,
             'guardian_contact' => $data['guardian_contact'] ?? null,
             'gender'           => $data['gender'],
-            'picture_path'     => $data['picture_path'],
             'status'           => 'pending',
-        ]);
+            'face_embedding'   => $embedding,
+            'face_embedding_updated_at' => now(),
+            'face_last_similarity' => $similarity,
+        ];
+
+        if ($storedPath) {
+            $payload['picture_path'] = $storedPath;
+        }
+
+        if ($existing) {
+            if ($storedPath && $existing->picture_path && $existing->picture_path !== $storedPath) {
+                $diskPath = preg_replace('#^storage/#', '', $existing->picture_path);
+                if ($diskPath && Storage::disk('public')->exists($diskPath)) {
+                    Storage::disk('public')->delete($diskPath);
+                }
+            }
+            $existing->fill($payload);
+            $existing->save();
+            $student = $existing;
+        } else {
+            $student = Student::create(array_merge([
+                'id_number' => $data['id_number'],
+            ], $payload));
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Registration successful',
+                'message' => $existing ? 'Photo verified and record updated.' : 'Registration successful',
                 'id'      => $student->id,
+                'similarity' => $similarity,
             ]);
         }
 
+        $message = $existing
+            ? '✅ Photo verified. Your profile was updated and will be re-reviewed shortly.'
+            : '✅ Registration successful!';
+
         return redirect()
             ->route('register')
-            ->with('success', '✅ Registration successful!');
+            ->with('success', $message);
+    }
+
+    /**
+     * Admin: replace the stored reference photo + embedding for a student.
+     */
+    public function refreshPhoto(Request $request)
+    {
+        $validated = $request->validate([
+            'student_id'     => ['required', 'integer', 'exists:students,id'],
+            'photo'          => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120', 'dimensions:ratio=1/1,min_width=300,min_height=300'],
+            'face_embedding' => ['required', 'string'],
+        ]);
+
+        $embedding = $this->parseEmbedding($validated['face_embedding']);
+        if (!$embedding) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Face embedding payload is invalid.',
+            ], 422);
+        }
+
+        $student = Student::findOrFail($validated['student_id']);
+        $previousEmbedding = is_array($student->face_embedding) ? $student->face_embedding : null;
+        $similarity = $previousEmbedding ? $this->cosineSimilarity($previousEmbedding, $embedding) : null;
+
+        $newPath = $student->picture_path;
+        if ($request->hasFile('photo')) {
+            $ext = strtolower($request->file('photo')->getClientOriginalExtension());
+            $filename = 'id-ref-' . Str::uuid() . '.' . $ext;
+            $stored = $request->file('photo')->storeAs('uploads', $filename, 'public');
+            $newPath = 'storage/' . ltrim($stored, '/');
+        }
+
+        // Remove the old public file if it lives on the same disk.
+        if (!empty($student->picture_path) && $student->picture_path !== $newPath) {
+            $diskPath = preg_replace('#^storage/#', '', $student->picture_path);
+            if ($diskPath && Storage::disk('public')->exists($diskPath)) {
+                Storage::disk('public')->delete($diskPath);
+            }
+        }
+
+        $student->picture_path = $newPath;
+        $student->face_embedding = $embedding;
+        $student->face_embedding_updated_at = now();
+        $student->face_last_similarity = $similarity ?? 1.0;
+        $student->status = 'pending';
+        $student->save();
+
+        return response()->json([
+            'status'     => 'success',
+            'message'    => 'Reference photo updated.',
+            'similarity' => $similarity,
+        ]);
     }
 
     /**

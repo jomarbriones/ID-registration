@@ -7,6 +7,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   @vite(['resources/css/app.css','resources/js/app.js'])
+  <script>
+    window.faceVerifierConfig = Object.assign({ modelPath: 'face-models' }, window.faceVerifierConfig || {});
+  </script>
+  <script src="{{ asset('js/face-verifier.js') }}"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-emerald-50/20 min-h-screen antialiased">
@@ -188,17 +192,20 @@
                 <div x-data="{ dragging:false, handleDrop(e){ e.preventDefault(); this.dragging=false; const files=e.dataTransfer.files; if(files&&files[0]){ const input=$refs.file; input.files=files; input.dispatchEvent(new Event('change')); }} }" @dragover.prevent="dragging=true" @dragleave="dragging=false" @drop="handleDrop($event)"
                      class="rounded-2xl border-2 border-dashed" :class="dragging ? 'border-emerald-600 bg-emerald-50' : 'border-slate-300 bg-white'">
                   <div class="p-6 text-center">
-                    <p class="text-sm text-slate-700">Upload 1x1 photo (JPG/PNG, min 300Ã—300)</p>
+                    <p class="text-sm text-slate-700">Upload 1x1 photo (JPG/PNG, min 300x300)</p>
                     <input x-ref="file" id="picture_path" name="picture_path" type="file" accept="image/jpeg,image/png" class="form-file-solid mt-4" @change="previewPhoto($event)">
+                    <input type="hidden" name="face_embedding" x-ref="embedding">
                     @error('picture_path') <p class="form-error mt-2">{{ $message }}</p> @enderror
                     <p class="form-error mt-2" x-show="imageError" x-text="imageError"></p>
+                    <p class="mt-2 text-xs text-emerald-700" x-show="faceStatus" x-text="faceStatus"></p>
+                    <p class="form-error mt-2" x-show="faceError" x-text="faceError"></p>
                   </div>
                 </div>
 
                 <div class="mt-4">
                   <div class="aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-xl border-2 border-slate-300 bg-slate-50 flex items-center justify-center">
                     <template x-if="photoUrl">
-                      <img :src="photoUrl" alt="Preview" class="w-full h-full object-cover">
+                      <img :src="photoUrl" alt="Preview" class="w-full h-full object-cover cursor-zoom-in" @click="openLightbox(photoUrl)">
                     </template>
                     <template x-if="!photoUrl">
                       <div class="text-slate-400 text-sm">No photo selected</div>
@@ -329,6 +336,11 @@
         submitting: false,
         photoUrl: null,
         imageError: '',
+        faceStatus: '',
+        faceError: '',
+        faceEmbedding: null,
+        faceBusy: false,
+        faceConfidence: null,
         loading: false,
         lightboxOpen: false,
         lightboxSrc: null,
@@ -349,7 +361,7 @@
         },
 
         get progress(){ return ((this.step + 1) / 3) * 100; },
-        get photoOk(){ return !!this.photoUrl && !this.imageError; },
+        get photoOk(){ return !!this.photoUrl && !this.imageError && !!this.faceEmbedding && !this.faceBusy; },
 
         initFromServer(){
           @if ($errors->has('picture_path')) this.step = 1; @endif
@@ -376,19 +388,82 @@
         oneLetter(e){ e.target.value = e.target.value.replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,1); this.form.middle_initial = e.target.value; },
 
         previewPhoto(ev){
-          this.imageError = ''; this.photoUrl = null;
-          const f = ev.target.files?.[0]; if(!f){ this.imageError = 'Please select an image.'; return; }
+          this.imageError = '';
+          this.photoUrl = null;
+          this.faceStatus = '';
+          this.faceError = '';
+          this.faceEmbedding = null;
+          this.faceConfidence = null;
+          if(this.$refs?.embedding){ this.$refs.embedding.value = ''; }
+          const f = ev.target.files?.[0];
+          if(!f){
+            this.imageError = 'Please select an image.';
+            return;
+          }
           const okType = ['image/jpeg','image/png'].includes(f.type);
           const okSize = f.size <= 5*1024*1024;
-          if(!okType){ this.imageError = 'Only JPG/PNG allowed.'; return; }
-          if(!okSize){ this.imageError = 'Max size is 5MB.'; return; }
+          if(!okType){
+            this.imageError = 'Only JPG/PNG allowed.';
+            return;
+          }
+          if(!okSize){
+            this.imageError = 'Max size is 5MB.';
+            return;
+          }
+          const previousUrl = this.photoUrl;
+          if(previousUrl){ URL.revokeObjectURL(previousUrl); }
           const url = URL.createObjectURL(f); const img = new Image();
-          img.onload = () => {
+          img.onload = async () => {
             const square = Math.abs(img.width - img.height) <= 2;
             if(!square || img.width < 300 || img.height < 300){
-              this.imageError = 'Photo must be square (1:1) and at least 300Ã—300px.'; URL.revokeObjectURL(url); return;
+              this.imageError = 'Photo must be square (1:1) and at least 300x300px.';
+              URL.revokeObjectURL(url);
+              return;
             }
             this.photoUrl = url;
+            if(window.FaceVerifier){
+              try{
+                this.faceBusy = true;
+                this.faceStatus = 'Loading face models…';
+                await window.FaceVerifier.prepare();
+                this.faceStatus = 'Analyzing photo…';
+                const result = await window.FaceVerifier.embedFile(f, { minConfidence: 0.5 });
+                this.faceEmbedding = result.vector;
+                this.faceConfidence = result.overview?.confidence ?? null;
+                if(this.$refs?.embedding){
+                  this.$refs.embedding.value = JSON.stringify(this.faceEmbedding);
+                }
+                const pct = this.faceConfidence !== null ? ` (${(this.faceConfidence*100).toFixed(1)}% confidence)` : '';
+                this.faceStatus = 'Face captured successfully' + pct;
+                this.faceError = '';
+              }catch(err){
+                this.faceEmbedding = null;
+                this.faceConfidence = null;
+                this.faceStatus = '';
+                if(this.$refs?.embedding){
+                  this.$refs.embedding.value = '';
+                }
+                const code = err?.message || '';
+                if(code === 'face-not-found'){
+                  this.faceError = 'No face detected. Retake with the subject facing the camera.';
+                }else if(code === 'descriptor-empty'){
+                  this.faceError = 'Unable to read facial features. Try a clearer image.';
+                }else{
+                  this.faceError = 'Face verification failed. Check lighting and try again.';
+                  console.error(err);
+                }
+                this.photoUrl = null;
+                URL.revokeObjectURL(url);
+              }finally{
+                this.faceBusy = false;
+              }
+            }else{
+              this.faceStatus = 'Face verifier script is unavailable.';
+              this.faceEmbedding = null;
+              if(this.$refs?.embedding){
+                this.$refs.embedding.value = '';
+              }
+            }
           };
           img.onerror = () => { this.imageError = 'Invalid image file.'; URL.revokeObjectURL(url); };
           img.src = url;
@@ -397,7 +472,17 @@
         onSubmit(e){
           const chk = document.getElementById('finalConfirm');
           this.confirmed = !!(chk && chk.checked);
-          if(!this.confirmed){ e.preventDefault(); this.step = 2; return; }
+          if(!this.confirmed){
+            e.preventDefault();
+            this.step = 2;
+            return;
+          }
+          if(!this.faceEmbedding){
+            e.preventDefault();
+            this.step = 1;
+            this.faceError = 'Run face verification before submitting.';
+            return;
+          }
           this.submitting = true;
         }
       }
@@ -405,4 +490,15 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
 

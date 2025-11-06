@@ -17,7 +17,14 @@ class Student extends Model
 
     protected $fillable = [
         'id_number','first_name','middle_initial','last_name','course','blood_type',
-        'address','guardian_name','parent_address','guardian_contact','picture_path','status','gender'
+        'address','guardian_name','parent_address','guardian_contact','picture_path','status','gender',
+        'face_embedding','face_embedding_updated_at','face_last_similarity'
+    ];
+
+    protected $casts = [
+        'face_embedding' => 'array',
+        'face_embedding_updated_at' => 'datetime',
+        'face_last_similarity' => 'float',
     ];
 
     // If your timestamps columns differ or are absent:

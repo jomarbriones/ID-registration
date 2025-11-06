@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Admin Dashboard — ID Registration Portal</title>
+  <title>Admin Dashboard Ã¢â‚¬â€ ID Registration Portal</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <script>window.Laravel = { csrfToken: '{{ csrf_token() }}' };</script>
   <link rel="icon" href="{{ asset('images/CvSU-navbar-Logo-PNG.png') }}">
+  <script>
+    window.faceVerifierConfig = Object.assign({ modelPath: 'face-models' }, window.faceVerifierConfig || {});
+  </script>
+  <script src="{{ asset('js/face-verifier.js') }}"></script>
 
   <style>
     :root{
@@ -115,7 +119,7 @@
           <div class="kicker">Manage student ID registrations</div>
         </div>
       </div>
-      <div class="kicker">● Secure session</div>
+      <div class="kicker">Ã¢â€”Â Secure session</div>
     </div>
 
     <div class="grid">
@@ -155,7 +159,7 @@
           </div>
           <div class="card-bd">
             <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:12px;align-items:center;flex-wrap:wrap;">
-              <input class="search" style="flex:1 1 260px" placeholder="Search pending…" @input="filterTable('pending', $event.target.value)">
+              <input class="search" style="flex:1 1 260px" placeholder="Search pendingÃ¢â‚¬Â¦" @input="filterTable('pending', $event.target.value)">
             </div>
 
             <div style="overflow:auto">
@@ -166,7 +170,7 @@
                   </tr>
                 </thead>
                 <tbody id="pending-body">
-                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">Loading…</td></tr>
+                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">LoadingÃ¢â‚¬Â¦</td></tr>
                 </tbody>
               </table>
             </div>
@@ -184,7 +188,7 @@
           </div>
           <div class="card-bd">
             <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:12px;align-items:center;flex-wrap:wrap;">
-              <input class="search" style="flex:1 1 260px" placeholder="Search students…" @input="filterTable('approved', $event.target.value)">
+              <input class="search" style="flex:1 1 260px" placeholder="Search studentsÃ¢â‚¬Â¦" @input="filterTable('approved', $event.target.value)">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <span class="count-pill" x-show="sel.approved.length>0" x-text="sel.approved.length + (sel.approved.length===1 ? ' student selected' : ' students selected')"></span>
                 <button class="chip chip-emerald" :disabled="sel.approved.length===0" @click="printSelected('approved')">Print IDs</button>
@@ -200,7 +204,7 @@
                   </tr>
                 </thead>
                 <tbody id="approved-body">
-                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">Loading…</td></tr>
+                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">LoadingÃ¢â‚¬Â¦</td></tr>
                 </tbody>
               </table>
             </div>
@@ -225,7 +229,43 @@
           <div id="pv-title" style="font-weight:800">Student Preview</div>
           <button class="xbtn" @click="closeModal()">Close</button>
         </div>
-        <div class="modal-bd" x-html="modalHTML">Loading…</div>
+        <div class="modal-bd" x-html="modalHTML">LoadingÃ¢â‚¬Â¦</div>
+      </div>
+    </div>
+
+    <!-- Refresh Photo -->
+    <div class="backdrop" :class="{show:refreshOpen}" x-show="refreshOpen" @click.self="closeRefresh()" @keydown.escape.window="closeRefresh()">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="refresh-title">
+        <div class="modal-hd">
+          <div id="refresh-title" style="font-weight:800">Refresh Reference Photo</div>
+          <button class="xbtn" @click="closeRefresh()">Close</button>
+        </div>
+        <div class="modal-bd">
+          <form x-ref="refreshForm" @submit.prevent="submitRefresh" style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div style="font-size:14px;font-weight:700" x-text="refreshStudent?.name ?? 'Ã¢â‚¬â€'"></div>
+              <div class="meta" x-text="refreshStudent ? `Student #${refreshStudent.number}` : ''"></div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#0f172a">New 1x1 Photo</label>
+              <input type="file" x-ref="refreshFile" accept="image/jpeg,image/png" @change="handleRefreshFile($event)"
+                     style="margin-top:6px;width:100%;padding:10px;border:1px dashed var(--ring);border-radius:10px;background:#fff">
+              <input type="hidden" x-ref="refreshEmbedding">
+              <div class="meta" style="margin-top:6px;color:#047857;font-weight:600" x-show="refreshStatus" x-text="refreshStatus"></div>
+              <div class="meta" style="margin-top:6px;color:#b91c1c" x-show="refreshError" x-text="refreshError"></div>
+            </div>
+            <div class="meta" style="font-size:12px;line-height:1.4">
+              Upload a square, well-lit photo. We will compare it against the existing reference before saving.
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px">
+              <button type="button" class="xbtn" style="padding:10px 16px" @click="closeRefresh()">Cancel</button>
+              <button type="submit" class="chip chip-emerald" :disabled="refreshBusy" style="border:none;padding:10px 18px">
+                <span x-show="!refreshBusy">Save New Photo</span>
+                <span x-show="refreshBusy">SavingÃ¢â‚¬Â¦</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -242,6 +282,7 @@
         preview:  @json(route('students.preview')),
         approve:  @json(route('students.approve')),
         decline:  @json(route('students.decline')),
+        refresh:  @json(route('students.refreshPhoto')),
         logout:   @json(route('logout')),
       };
 
@@ -251,7 +292,7 @@
         const el = document.createElement('div');
         el.className = 'toast ' + (type==='err' ? 'err' : 'ok');
         el.innerHTML = `<div><strong>${title}</strong><div style="font-size:12px">${msg??''}</div></div>
-                        <button class="close">✕</button>`;
+                        <button class="close">Ã¢Å“â€¢</button>`;
         w.appendChild(el);
         requestAnimationFrame(()=>el.classList.add('show'));
         const close = ()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),180);}
@@ -331,6 +372,12 @@
         updatedAt: '',
         modalOpen: false,
         modalHTML: '',
+        refreshOpen: false,
+        refreshStudent: null,
+        refreshStatus: '',
+        refreshError: '',
+        refreshVector: null,
+        refreshBusy: false,
         sel: { pending: [], approved: [] },
         counts: { pending: 0, approved: 0 },
 
@@ -365,7 +412,10 @@
           const tbody = document.getElementById('approved-body');
           tbody.innerHTML = html;
           upgradeActionCells(tbody); // gives preview button
-          wireDelegation(tbody, { preview: id => this.openPreview(id) });
+          wireDelegation(tbody, {
+            preview: id => this.openPreview(id),
+            refresh: (id, btn) => this.openRefresh(id, btn),
+          });
           tbody.querySelectorAll('input.row-select').forEach(cb=>{
             cb.addEventListener('change', (e)=>{
               const id = e.target.getAttribute('data-id');
@@ -419,7 +469,7 @@
 
         async openPreview(id){
           this.modalOpen = true;
-          this.modalHTML = '<div class="meta">Loading preview…</div>';
+          this.modalHTML = '<div class="meta">Loading preview...</div>';
           try{
             // Ask JSON/HTML; controller can return HTML string or JSON
             const res = await fetch(EP.preview + '?id=' + encodeURIComponent(id) + '&t=' + Date.now(), {headers:{'Accept':'text/html,application/json'}, cache: 'no-store'});
@@ -432,12 +482,170 @@
 
         closeModal(){ this.modalOpen = false; this.modalHTML = ''; },
 
+        openRefresh(id, btn){
+          const tr = btn?.closest?.('tr') || document.querySelector(`tr[data-row-id="${CSS.escape(id)}"]`);
+          const nameFromRow = tr ? [tr?.dataset?.first, tr?.dataset?.last].filter(Boolean).join(' ') : '';
+          this.refreshStudent = {
+            id,
+            number: btn?.dataset?.number || tr?.dataset?.number || id,
+            name: btn?.dataset?.name || nameFromRow || `Student #${id}`,
+          };
+          this.refreshOpen = true;
+          this.refreshStatus = '';
+          this.refreshError = '';
+          this.refreshVector = null;
+          this.refreshBusy = false;
+          this.$nextTick(() => {
+            if(this.$refs?.refreshFile){ this.$refs.refreshFile.value = ''; }
+            if(this.$refs?.refreshEmbedding){ this.$refs.refreshEmbedding.value = ''; }
+          });
+        },
+
+        closeRefresh(){
+          this.refreshOpen = false;
+          this.refreshStudent = null;
+          this.refreshStatus = '';
+          this.refreshError = '';
+          this.refreshVector = null;
+          if(this.$refs?.refreshFile){ this.$refs.refreshFile.value = ''; }
+          if(this.$refs?.refreshEmbedding){ this.$refs.refreshEmbedding.value = ''; }
+        },
+
+        async handleRefreshFile(ev){
+          this.refreshError = '';
+          this.refreshStatus = '';
+          this.refreshVector = null;
+          if(this.$refs?.refreshEmbedding){ this.$refs.refreshEmbedding.value = ''; }
+
+          const file = ev.target.files?.[0];
+          if(!file){
+            this.refreshError = 'Select an image to continue.';
+            return;
+          }
+          const okType = ['image/jpeg','image/png'].includes(file.type);
+          const okSize = file.size <= 5 * 1024 * 1024;
+          if(!okType){
+            this.refreshError = 'Only JPG and PNG files are allowed.';
+            ev.target.value = '';
+            return;
+          }
+          if(!okSize){
+            this.refreshError = 'Max file size is 5MB.';
+            ev.target.value = '';
+            return;
+          }
+
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+          img.onload = async () => {
+            const square = Math.abs(img.width - img.height) <= 2;
+            if(!square || img.width < 300 || img.height < 300){
+              this.refreshError = 'Photo must be square (1:1) and at least 300x300px.';
+              URL.revokeObjectURL(url);
+              ev.target.value = '';
+              return;
+            }
+
+            if(!window.FaceVerifier){
+              this.refreshError = 'Face verifier script is unavailable.';
+              URL.revokeObjectURL(url);
+              return;
+            }
+
+            try{
+              this.refreshBusy = true;
+              this.refreshStatus = 'Analyzing photo...';
+              await window.FaceVerifier.prepare();
+              const result = await window.FaceVerifier.embedFile(file, { minConfidence: 0.5 });
+              this.refreshVector = result.vector;
+              if(this.$refs?.refreshEmbedding){
+                this.$refs.refreshEmbedding.value = JSON.stringify(this.refreshVector);
+              }
+              const pct = result.overview?.confidence !== undefined
+                ? ` ${(result.overview.confidence * 100).toFixed(1)}% confidence`
+                : '';
+              this.refreshStatus = `Face captured.${pct}`;
+              this.refreshError = '';
+            }catch(err){
+              this.refreshVector = null;
+              if(this.$refs?.refreshEmbedding){
+                this.$refs.refreshEmbedding.value = ''; }
+              const code = err?.message || '';
+              if(code === 'face-not-found'){
+                this.refreshError = 'No face detected. Try another photo.';
+              }else{
+                this.refreshError = 'Face verification failed. Try a clearer photo.';
+                console.error(err);
+              }
+            }finally{
+              this.refreshBusy = false;
+              URL.revokeObjectURL(url);
+            }
+          };
+          img.onerror = () => {
+            this.refreshError = 'Invalid image file.';
+            URL.revokeObjectURL(url);
+            ev.target.value = '';
+          };
+          img.src = url;
+        },
+        async submitRefresh(){
+          if(!this.refreshStudent){
+            this.refreshError = 'Select a student before submitting.';
+            return;
+          }
+          const file = this.$refs?.refreshFile?.files?.[0];
+          if(!file){
+            this.refreshError = 'Choose a photo to upload.';
+            return;
+          }
+          if(!this.refreshVector){
+            this.refreshError = 'Run face verification on the new photo before saving.';
+            return;
+          }
+
+          this.refreshBusy = true;
+          this.refreshError = '';
+
+          const fd = new FormData();
+          fd.append('student_id', this.refreshStudent.id);
+          fd.append('photo', file);
+          fd.append('face_embedding', JSON.stringify(this.refreshVector));
+
+          try{
+            const res = await fetch(EP.refresh, {
+              method: 'POST',
+              headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+              body: fd,
+            });
+            const text = await res.text();
+            let payload;
+            try { payload = JSON.parse(text); } catch { payload = { message: text }; }
+            if(!res.ok || payload?.status !== 'success'){
+              const msg = payload?.message || 'Failed to update photo.';
+              this.refreshError = msg;
+              toast('err', 'Update failed', msg);
+              return;
+            }
+            toast('ok', 'Reference updated', `Saved new photo for ${this.refreshStudent.number}`);
+            this.closeRefresh();
+            await this.loadTables();
+            this.updatedAt = new Date().toLocaleTimeString();
+          }catch(err){
+            console.error(err);
+            this.refreshError = 'Unexpected error while updating photo.';
+            toast('err', 'Update failed', 'Unexpected error.');
+          }finally{
+            this.refreshBusy = false;
+          }
+        },
+
         async confirmAction(kind, id){
           const verb = kind==='approve' ? 'Approve' : 'Decline';
           if(!confirm(`${verb} this student?`)) return;
 
           // optimistic small spinner on toast
-          toast('ok', verb, 'Processing…');
+          toast('ok', verb, 'ProcessingÃ¢â‚¬Â¦');
           const res = await post(EP[kind], 'id=' + encodeURIComponent(id));
           const ok = (typeof res==='string' && res.trim()==='success') || (res?.status==='success');
 
@@ -477,3 +685,6 @@
   </script>
 </body>
 </html>
+
+
+
