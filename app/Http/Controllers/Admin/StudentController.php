@@ -1,0 +1,286 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreStudentRequest;
+use App\Models\Student;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class StudentController extends Controller
+{
+    /**
+     * Helper: builds a proper public URL for stored photos.
+     */
+    protected function photoUrl(?string $path): ?string
+    {
+        if (empty($path)) return asset('images/placeholder.png');
+
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        // If it's already a /storage path
+        if (Str::startsWith($path, ['storage/', '/storage/'])) {
+            return url(Str::start($path, '/'));
+        }
+
+        // If stored in public disk (uploads/...)
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::url($path);
+        }
+
+        // Fallback for files directly in /public/
+        if (file_exists(public_path($path))) {
+            return asset($path);
+        }
+
+        return asset('images/placeholder.png');
+    }
+
+    /**
+     * AJAX: Returns rendered HTML rows for pending students.
+     */
+    public function pending()
+    {
+        $students = Student::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.partials._pending_rows', compact('students'))->render();
+    }
+
+    /**
+     * AJAX: Returns rendered HTML rows for approved students.
+     */
+    public function approved()
+    {
+        $students = Student::where('status', 'approved')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.partials._approved_rows', compact('students'))->render();
+    }
+
+    /**
+     * PREVIEW: Renders full HTML preview (front and back of ID)
+     * Used by Admin Dashboard modal.
+     */
+    public function preview(Request $request)
+    {
+        $id = $request->query('id');
+
+        // allow lookup by numeric id or student number
+        $student = Student::where('id', $id)
+            ->orWhere('id_number', $id)
+            ->first();
+
+        if (!$student) {
+            return response('<div style="padding:12px;color:#b91c1c">No matching student found.</div>', 404);
+        }
+
+        $photoUrl = $this->photoUrl($student->picture_path ?? $student->photo_path ?? null);
+
+        $response = response()->view('admin.partials._id_preview', [
+            'student' => $student,
+            'photoUrl' => $photoUrl,
+        ]);
+
+        // Prevent any caching so the latest template/styles are always used in the modal
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        return $response;
+    }
+
+    /**
+     * Handles new student registration (from /register form).
+     */
+    public function submit(StoreStudentRequest $request)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('picture_path')) {
+            $ext = strtolower($request->file('picture_path')->getClientOriginalExtension());
+            $filename = 'id-' . Str::uuid() . '.' . $ext;
+            $stored = $request->file('picture_path')->storeAs('uploads', $filename, 'public');
+            $data['picture_path'] = 'storage/' . ltrim($stored, '/'); // e.g. storage/uploads/uuid.jpg
+        }
+
+        $student = Student::create([
+            'id_number'        => $data['id_number'],
+            'first_name'       => $data['first_name'],
+            'middle_initial'   => $data['middle_initial'] ?? null,
+            'last_name'        => $data['last_name'],
+            'course'           => $data['course'] ?? null,
+            'blood_type'       => $data['blood_type'] ?? null,
+            'address'          => $data['address'] ?? null,
+            'guardian_name'    => $data['guardian_name'] ?? null,
+            'parent_address'   => $data['parent_address'] ?? null,
+            'guardian_contact' => $data['guardian_contact'] ?? null,
+            'gender'           => $data['gender'],
+            'picture_path'     => $data['picture_path'],
+            'status'           => 'pending',
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Registration successful',
+                'id'      => $student->id,
+            ]);
+        }
+
+        return redirect()
+            ->route('register')
+            ->with('success', '✅ Registration successful!');
+    }
+
+    /**
+     * Approve student by ID or student number.
+     */
+    public function approve(Request $request)
+    {
+        $id_raw = trim((string)$request->input('id', ''));
+        if ($id_raw === '') {
+            return response()->json(['status' => 'error', 'message' => 'Missing ID'], 400);
+        }
+
+        $student = ctype_digit($id_raw)
+            ? Student::find((int)$id_raw)
+            : Student::where('id_number', $id_raw)->first();
+
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'No matching student found'], 404);
+        }
+
+        $student->status = 'approved';
+        $student->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Student approved successfully']);
+    }
+
+    /**
+     * Decline student by ID or student number.
+     */
+    public function decline(Request $request)
+    {
+        $id_raw = trim((string)$request->input('id', ''));
+        if ($id_raw === '') {
+            return response()->json(['status' => 'error', 'message' => 'Missing ID'], 400);
+        }
+
+        $student = ctype_digit($id_raw)
+            ? Student::find((int)$id_raw)
+            : Student::where('id_number', $id_raw)->first();
+
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'No matching student found'], 404);
+        }
+
+        $student->status = 'declined';
+        $student->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Student declined successfully']);
+    }
+
+    /**
+     * Optional: unified endpoint for approve/decline.
+     */
+    public function updateStatus(Request $request)
+    {
+        $id = (int)$request->post('id', 0);
+        $action = $request->post('action', '');
+
+        if (!$id || !in_array($action, ['approve', 'decline'], true)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid request'], 400);
+        }
+
+        $student = Student::find($id);
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'Student not found'], 404);
+        }
+
+        $student->status = $action === 'approve' ? 'approved' : 'declined';
+        $student->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Status updated']);
+    }
+
+    /**
+     * Generate a print-ready PDF sheet containing multiple student ID fronts.
+     * Usage: GET /admin/students/print?ids=1,2,3 (IDs or student numbers)
+     * If no ids provided, prints all approved students.
+     */
+    public function print(Request $request)
+    {
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            return response(
+                '<div style="font-family:system-ui,Segoe UI,Arial;padding:14px;max-width:680px">'
+                .'<h3 style="margin:0 0 8px;color:#b91c1c">PDF rendering prerequisites missing</h3>'
+                .'<p style="margin:0 0 6px">The PHP GD or Imagick extension is required to generate print-ready PDFs.</p>'
+                .'<ol style="margin:8px 0 0 18px;line-height:1.5">'
+                .'<li>Open <code>php.ini</code> (e.g., <code>C:\\xampp\\php\\php.ini</code>).</li>'
+                .'<li>Uncomment <code>extension=gd</code> (remove leading semicolon) and ensure <code>extension=fileinfo</code> and <code>extension=mbstring</code> are enabled.</li>'
+                .'<li>Restart Apache (XAMPP Control Panel) and retry.</li>'
+                .'</ol>'
+                .'</div>', 500
+            );
+        }
+
+        $idsParam = trim((string)$request->query('ids', ''));
+        $studentsQuery = Student::query();
+
+        if ($idsParam !== '') {
+            $keys = collect(explode(',', $idsParam))
+                ->map(fn($v) => trim($v))
+                ->filter();
+            $studentsQuery->where(function($q) use ($keys) {
+                foreach ($keys as $k) {
+                    $q->orWhere('id', $k)->orWhere('id_number', $k);
+                }
+            });
+        } else {
+            $studentsQuery->where('status', 'approved');
+        }
+
+        $students = $studentsQuery->orderBy('last_name')->get();
+
+        if ($students->isEmpty()) {
+            return back()->with('error', 'No students found to print.');
+        }
+
+        // Precompute resolved photo paths for dompdf (absolute)
+        $items = $students->map(function($s){
+            $raw = $s->picture_path ?? '';
+            $abs = null;
+            if ($raw) {
+                if (Str::startsWith($raw, ['http://','https://'])) {
+                    $abs = $raw; // dompdf can fetch if remote enabled
+                } elseif (Str::startsWith($raw, ['storage/','/storage/'])) {
+                    $abs = public_path(Str::start($raw, '/'));
+                } elseif (Storage::disk('public')->exists($raw)) {
+                    $abs = public_path('storage/'.ltrim($raw,'/'));
+                } elseif (file_exists(public_path($raw))) {
+                    $abs = public_path($raw);
+                }
+            }
+            return [
+                'model' => $s,
+                'photo_abs' => $abs,
+            ];
+        });
+
+        $pdf = Pdf::loadView('admin.print.cards', [
+            'items' => $items,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('student-id-cards.pdf');
+    }
+}
+
+
