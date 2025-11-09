@@ -9,7 +9,8 @@
     <button type="button" class="chip chip-soft"
             data-action="preview"
             data-id="{{ $s->id }}"
-            data-number="{{ $s->id_number }}">Preview</button>
+            data-number="{{ $s->id_number }}"
+            data-name="{{ $s->first_name }} {{ $s->last_name }}">Preview</button>
     <button type="button" class="chip chip-outline"
             data-action="refresh"
             data-id="{{ $s->id }}"

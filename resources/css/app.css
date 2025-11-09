@@ -1,70 +1,212 @@
-﻿@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600&display=swap");
+@import "tailwindcss";
+
+[x-cloak] {
+  display: none !important;
+}
+
+@layer base {
+  :root {
+    font-family: theme("fontFamily.sans");
+  }
+
+  body {
+    @apply font-sans text-neutral-900 antialiased;
+    background-color: #F8FAFC;
+  }
+
+  label {
+    @apply select-none;
+  }
+}
 
 @layer components {
-  .form-label { @apply block text-sm font-medium text-slate-800; }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold tracking-tight transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold tracking-tight text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 hover:-translate-y-0.5;
+    background-color: #1B6533;
+    border-color: transparent;
+    box-shadow: 0 20px 45px -30px rgba(15, 61, 33, 0.5);
+  }
+  .btn-primary:hover { background-color: #14572D; }
+  .btn-primary:focus-visible { box-shadow: 0 0 0 3px rgba(27, 101, 51, 0.35); }
 
-  .form-input-solid {
-    @apply mt-1 w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2
-           shadow-sm focus:outline-none focus:border-emerald-600 focus:ring-0;
+  .btn-secondary {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold tracking-tight transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 hover:-translate-y-0.5;
+    background-color: #EEF2F5;
+    border: 1px solid #E2E8F0;
+    color: #14572D;
   }
 
-  .form-select-solid {
-    @apply mt-1 w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2
-           shadow-sm focus:outline-none focus:border-emerald-600 focus:ring-0;
+  .btn-ghost {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold tracking-tight transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    background-color: transparent;
+    border: 1px solid rgba(27, 101, 51, 0.3);
+    color: #14572D;
   }
+  .btn-ghost:hover { background-color: #F5FAF7; }
 
-  .form-file-solid {
-    @apply mt-1 block w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2
-           shadow-sm focus:outline-none focus:border-emerald-600;
+  .btn-danger {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold tracking-tight text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    background-color: #DC2626;
   }
-  .form-file-solid::file-selector-button {
-    @apply mr-3 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold
-           hover:bg-emerald-700 cursor-pointer;
-  }
+  .btn-danger:hover { background-color: #B91C1C; }
 
-  .form-error { @apply mt-1 text-xs text-rose-600; }
-
-  /* ↓ Force compact, auto-width buttons */
   .btn-primary-solid {
-    @apply inline-flex items-center justify-center w-auto whitespace-nowrap
-           rounded-xl bg-emerald-600 px-5 py-2 text-sm text-white font-semibold
-           shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500;
   }
   .btn-ghost-solid {
-    @apply inline-flex items-center justify-center w-auto whitespace-nowrap
-           rounded-xl bg-white px-5 py-2 text-sm text-slate-800 font-semibold
-           shadow ring-1 ring-slate-300 hover:bg-slate-50
-           focus:outline-none focus:ring-2 focus:ring-emerald-500;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-white px-5 py-2 text-sm font-semibold text-slate-800 shadow ring-1 ring-slate-300 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500;
+  }
+  .btn-secondary-solid {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-800 shadow transition hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400;
+  }
+  .btn-sm { @apply min-h-[38px] px-4 py-2 text-sm; }
+  .btn-spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent;
   }
 
-  .radio-pill input { @apply sr-only; } /* 'peer' stays in HTML inputs */
+  .form-label {
+    @apply text-sm font-medium text-neutral-700;
+  }
+  .form-input,
+  .form-input-solid,
+  .form-select-solid {
+    @apply w-full rounded-2xl border border-neutral-300 bg-white px-4 py-2.5 text-base text-neutral-900 shadow-sm placeholder:text-neutral-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100;
+  }
+  .form-file-solid {
+    @apply block w-full rounded-2xl border border-dashed border-neutral-300 bg-white px-4 py-2.5 text-base text-neutral-700 shadow-sm focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50;
+  }
+  .form-file-solid::file-selector-button {
+    @apply mr-3 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500;
+  }
+  .form-error { @apply mt-1 text-sm font-medium text-red-600; }
+  .form-hint { @apply mt-1 text-sm text-neutral-500; }
+
+  .form-floating {
+    @apply relative;
+  }
+  .form-floating input,
+  .form-floating textarea {
+    @apply w-full rounded-2xl border border-neutral-300 bg-white px-4 py-2.5 text-base text-neutral-900 shadow-sm focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100;
+  }
+  .form-floating input::placeholder,
+  .form-floating textarea::placeholder {
+    @apply text-transparent;
+  }
+  .form-floating label {
+    @apply pointer-events-none absolute left-4 -top-2 bg-white px-1 text-xs font-semibold text-emerald-700 transition-all duration-150;
+  }
+  .form-floating input:placeholder-shown + label,
+  .form-floating textarea:placeholder-shown + label {
+    top: 0.75rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  .form-floating input:focus + label,
+  .form-floating textarea:focus + label,
+  .form-floating input:not(:placeholder-shown) + label,
+  .form-floating textarea:not(:placeholder-shown) + label {
+    top: -0.5rem;
+    font-size: 0.75rem;
+    color: #047857;
+  }
+
+  .auth-shell {
+    @apply relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10;
+    background-image: linear-gradient(135deg, #F8FAFC, #FFFFFF, #EEF2F5);
+  }
+  .auth-shell::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 -z-10 opacity-60;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,101,51,0.08) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+  .auth-card {
+    @apply relative mx-auto grid w-full max-w-5xl gap-12 rounded-3xl bg-white/95 p-8 lg:grid-cols-2;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 25px 65px -25px rgba(8, 38, 19, 0.3);
+  }
+  .auth-illustration {
+    @apply hidden rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-600 p-8 text-white lg:flex lg:flex-col lg:justify-between;
+  }
+  .auth-illustration h2 {
+    font-family: "Poppins", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    @apply text-3xl font-semibold leading-tight;
+  }
+
+  .alert-danger {
+    @apply flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-sm border-red-200 bg-red-50 text-red-700;
+  }
+  .alert-success {
+    @apply flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-sm border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+  .alert-info {
+    @apply flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-sm border-blue-200 bg-blue-50 text-blue-800;
+  }
+
+  .radio-pill input { @apply sr-only; }
   .radio-pill span {
-    @apply inline-flex items-center rounded-full px-3 py-1.5 border-2 border-slate-300
-           text-slate-700 font-medium cursor-pointer select-none
-           peer-checked:border-emerald-600 peer-checked:text-emerald-700;
+    @apply inline-flex items-center rounded-full border-2 border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition;
+  }
+  .radio-pill input:checked + span {
+    @apply border-emerald-600 text-emerald-700;
   }
 
-  .summary-row dt { @apply px-4 py-3 text-xs font-medium text-slate-500; }
-  .summary-row dd { @apply px-4 py-3 text-sm text-slate-800; }
+  .summary-row dt { @apply px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-500; }
+  .summary-row dd { @apply px-4 py-3 text-sm text-neutral-900; }
 
-  .btn-primary-solid {
-  @apply inline-flex items-center justify-center w-auto h-auto whitespace-nowrap
-         rounded-xl bg-emerald-600 px-5 py-2 text-sm text-white font-semibold
-         shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500;
-}
-  .btn-ghost-solid   { @apply inline-flex items-center justify-center w-auto whitespace-nowrap
-                        rounded-xl bg-white px-5 py-2 text-sm text-slate-800 font-semibold
-                        shadow ring-1 ring-slate-300 hover:bg-slate-50
-                        focus:outline-none focus:ring-2 focus:ring-emerald-500; }
+  .step-progress {
+    @apply rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC]/80 p-5;
+  }
+  .step-progress-list {
+    @apply flex flex-col gap-6 text-sm font-semibold text-neutral-600 sm:flex-row sm:items-center sm:gap-4;
+  }
+  .step-progress-item {
+    @apply relative flex flex-1 items-center gap-4;
+  }
+  .step-progress-marker {
+    @apply flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#D7DFE9] bg-white text-sm font-semibold text-neutral-500 transition;
+  }
+  .step-progress-body {
+    @apply text-left sm:text-center;
+  }
+  .step-progress-body p:first-child {
+    @apply text-xs uppercase tracking-wide text-neutral-600;
+  }
+  .step-progress-body p:last-child {
+    @apply text-[11px] font-medium text-neutral-400;
+  }
+  .step-progress-connector {
+    @apply hidden h-px flex-1 bg-[#D7DFE9] sm:block;
+  }
+  .step-progress-item[data-state="complete"] .step-progress-marker {
+    @apply border-emerald-500 bg-emerald-600 text-white;
+  }
+  .step-progress-item[data-state="active"] .step-progress-marker {
+    @apply border-emerald-600 text-emerald-700;
+  }
+  .step-progress-item[data-state="complete"] .step-progress-body p:first-child,
+  .step-progress-item[data-state="active"] .step-progress-body p:first-child {
+    @apply text-emerald-700;
+  }
 
-  /* NEW: small size utility */
-  .btn-sm { @apply px-4 py-2 text-sm; }
-
-  /* NEW: neutral secondary button */
-  .btn-secondary-solid { @apply inline-flex items-center justify-center w-auto whitespace-nowrap
-                         rounded-xl bg-slate-200 px-5 py-2 text-sm text-slate-800 font-semibold
-                         shadow hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400; }
-
-  /* Inline spinner utility for buttons */
-  .btn-spinner { @apply inline-block h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin; }
+  .password-checklist {
+    @apply grid gap-2 rounded-2xl border border-neutral-200 bg-white/70 p-4 text-sm;
+  }
+  .password-checklist li {
+    @apply flex items-center gap-2 text-neutral-500;
+  }
+  .password-checklist li::before {
+    content: "";
+    @apply inline-flex h-2.5 w-2.5 rounded-full border border-neutral-300 bg-white;
+  }
+  .password-checklist li[data-valid="true"] {
+    @apply text-emerald-700;
+  }
+  .password-checklist li[data-valid="true"]::before {
+    @apply border-emerald-500 bg-emerald-500;
+  }
 }

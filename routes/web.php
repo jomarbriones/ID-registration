@@ -23,6 +23,7 @@ Route::post('/login', [PortalAuthController::class, 'login']);
 
 Route::get('/create-account', [PortalAuthController::class, 'showRegister'])->name('create-account');
 Route::post('/create-account', [PortalAuthController::class, 'register']);
+Route::get('/api/check-student', [PortalAuthController::class, 'checkStudent'])->name('auth.check-student');
 
 Route::post('/logout', [PortalAuthController::class, 'logout'])->name('logout');
 

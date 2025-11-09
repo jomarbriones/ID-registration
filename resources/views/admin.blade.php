@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Admin Dashboard Ã¢â‚¬â€ ID Registration Portal</title>
+    <title>Admin Dashboard - ID Registration Portal</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <script>window.Laravel = { csrfToken: '{{ csrf_token() }}' };</script>
@@ -89,10 +89,31 @@
     /* Modal */
     .backdrop{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:center;justify-content:center;z-index:50}
     .backdrop.show{display:flex}
-    .modal{width:min(920px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--ring);box-shadow:0 30px 80px rgba(2,6,23,.25);transform:translateY(12px);opacity:0;transition:.18s}
+    .modal{width:min(1100px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--ring);box-shadow:0 30px 80px rgba(2,6,23,.25);transform:translateY(12px);opacity:0;transition:.18s}
     .backdrop.show .modal{transform:translateY(0);opacity:1}
     .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--ring)}
     .modal-bd{padding:14px}
+    .modal-content{display:flex;flex-direction:column;gap:18px}
+    .modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+    .info-panel,.photo-panel{border:1px solid var(--ring);border-radius:14px;padding:18px;background:#f8fafc}
+    .info-panel h3{margin:0;font-size:20px;font-weight:700;color:var(--ink)}
+    .info-panel .sub{margin-top:4px;font-size:13px;color:var(--muted)}
+    .info-list{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .info-list dt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .info-list dd{margin:2px 0 0;font-size:14px;font-weight:600;color:var(--ink)}
+    .photo-panel{background:#fff;display:flex;flex-direction:column;align-items:center;text-align:center}
+    .photo-panel img{width:100%;max-width:360px;border-radius:14px;border:1px solid var(--ring);object-fit:cover;aspect-ratio:3/4;background:#f8fafc}
+    .photo-panel .status{margin-top:10px;font-size:13px;color:var(--muted)}
+    .modal-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px}
+    .modal-actions button{min-width:150px;border-radius:999px;border:1px solid transparent;padding:12px 18px;font-weight:700;cursor:pointer;transition:.15s}
+    .modal-actions .approve{background:var(--emerald);color:#fff}
+    .modal-actions .approve:hover{background:var(--emerald-700)}
+    .modal-actions .decline{background:#fff5f5;color:#b91c1c;border-color:#fecdd3}
+    .modal-actions .decline:hover{background:#ffe4e6}
+    .modal-state{padding:24px;text-align:center;font-size:14px;color:var(--muted)}
+    .modal-preview-shell{border:1px dashed var(--ring);border-radius:14px;background:#fff}
+    .modal-preview-shell h4{margin:0;padding:14px 18px;border-bottom:1px solid var(--ring);font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .modal-preview-shell .preview-sheet{border-top:1px solid transparent}
     .xbtn{background:#f1f5f9;border:1px solid var(--ring);border-radius:10px;padding:6px 10px;cursor:pointer}
 
     /* Toasts */
@@ -119,7 +140,7 @@
           <div class="kicker">Manage student ID registrations</div>
         </div>
       </div>
-      <div class="kicker">Ã¢â€”Â Secure session</div>
+      <div class="kicker">&bull; Secure session</div>
     </div>
 
     <div class="grid">
@@ -159,7 +180,7 @@
           </div>
           <div class="card-bd">
             <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:12px;align-items:center;flex-wrap:wrap;">
-              <input class="search" style="flex:1 1 260px" placeholder="Search pendingÃ¢â‚¬Â¦" @input="filterTable('pending', $event.target.value)">
+              <input class="search" style="flex:1 1 260px" placeholder="Search pending..." @input="filterTable('pending', $event.target.value)">
             </div>
 
             <div style="overflow:auto">
@@ -170,7 +191,7 @@
                   </tr>
                 </thead>
                 <tbody id="pending-body">
-                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">LoadingÃ¢â‚¬Â¦</td></tr>
+                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">Loading...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -188,7 +209,7 @@
           </div>
           <div class="card-bd">
             <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:12px;align-items:center;flex-wrap:wrap;">
-              <input class="search" style="flex:1 1 260px" placeholder="Search studentsÃ¢â‚¬Â¦" @input="filterTable('approved', $event.target.value)">
+              <input class="search" style="flex:1 1 260px" placeholder="Search students..." @input="filterTable('approved', $event.target.value)">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <span class="count-pill" x-show="sel.approved.length>0" x-text="sel.approved.length + (sel.approved.length===1 ? ' student selected' : ' students selected')"></span>
                 <button class="chip chip-emerald" :disabled="sel.approved.length===0" @click="printSelected('approved')">Print IDs</button>
@@ -204,7 +225,7 @@
                   </tr>
                 </thead>
                 <tbody id="approved-body">
-                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">LoadingÃ¢â‚¬Â¦</td></tr>
+                  <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">Loading...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -226,10 +247,69 @@
     <div class="backdrop" :class="{show:modalOpen}" @click.self="closeModal()" @keydown.escape.window="closeModal()">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pv-title">
         <div class="modal-hd">
-          <div id="pv-title" style="font-weight:800">Student Preview</div>
+          <div>
+            <div id="pv-title" style="font-weight:800" x-text="modalStudent ? modalStudent.full_name : 'Student Preview'">Student Preview</div>
+            <div class="meta" x-show="modalStudent" x-text="modalStudent ? `Student #${modalStudent.id_number}` : ''"></div>
+          </div>
           <button class="xbtn" @click="closeModal()">Close</button>
         </div>
-        <div class="modal-bd" x-html="modalHTML">LoadingÃ¢â‚¬Â¦</div>
+        <div class="modal-bd">
+          <div x-show="modalLoading" class="modal-state" x-cloak>Loading...</div>
+          <div x-show="!modalLoading && modalError" class="modal-state" style="color:#b91c1c" x-text="modalError" x-cloak></div>
+          <template x-if="!modalLoading && modalStudent">
+            <div class="modal-content" x-cloak>
+              <div class="modal-grid">
+                <section class="info-panel">
+                  <h3 x-text="modalStudent.full_name || 'â€”'"></h3>
+                  <div class="sub" x-text="`Student #${modalStudent.id_number || 'â€”'}`"></div>
+                  <dl class="info-list">
+                    <div>
+                      <dt>Course</dt>
+                      <dd x-text="modalStudent.course || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Gender</dt>
+                      <dd x-text="modalStudent.gender || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Blood Type</dt>
+                      <dd x-text="modalStudent.blood_type || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Address</dt>
+                      <dd x-text="modalStudent.address || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Guardian</dt>
+                      <dd x-text="modalStudent.guardian_name || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Guardian Address</dt>
+                      <dd x-text="modalStudent.parent_address || 'â€”'"></dd>
+                    </div>
+                    <div>
+                      <dt>Guardian Contact</dt>
+                      <dd x-text="modalStudent.guardian_contact || 'â€”'"></dd>
+                    </div>
+                  </dl>
+                  <div class="meta" style="margin-top:14px" x-show="modalStudent.submitted_at_for_display" x-text="modalStudent.submitted_at_for_display ? `Submitted ${modalStudent.submitted_at_for_display}` : ''"></div>
+                </section>
+                <section class="photo-panel">
+                  <img :src="modalStudent.photo_url" :alt="modalStudent.full_name ? `Uploaded photo of ${modalStudent.full_name}` : 'Uploaded photo'" loading="lazy" onerror="this.src='{{ asset('images/photo-placeholder.png') }}'">
+                  <div class="status" x-show="modalStudent.status_label" x-text="`Status: ${modalStudent.status_label}`"></div>
+                </section>
+              </div>
+              <div class="modal-actions" x-show="modalStudent?.status === 'pending'" x-cloak>
+                <button type="button" class="decline" @click="confirmAction('decline', modalStudent.id, { name: modalStudent.full_name, number: modalStudent.id_number })">Reject</button>
+                <button type="button" class="approve" @click="confirmAction('approve', modalStudent.id, { name: modalStudent.full_name, number: modalStudent.id_number })">Approve</button>
+              </div>
+              <div class="modal-preview-shell" x-show="modalCardHtml" x-cloak>
+                <h4>ID Card Layout</h4>
+                <div x-html="modalCardHtml"></div>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
 
@@ -243,7 +323,7 @@
         <div class="modal-bd">
           <form x-ref="refreshForm" @submit.prevent="submitRefresh" style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <div style="font-size:14px;font-weight:700" x-text="refreshStudent?.name ?? 'Ã¢â‚¬â€'"></div>
+              <div style="font-size:14px;font-weight:700" x-text="refreshStudent?.name ?? 'No student selected'"></div>
               <div class="meta" x-text="refreshStudent ? `Student #${refreshStudent.number}` : ''"></div>
             </div>
             <div>
@@ -261,7 +341,7 @@
               <button type="button" class="xbtn" style="padding:10px 16px" @click="closeRefresh()">Cancel</button>
               <button type="submit" class="chip chip-emerald" :disabled="refreshBusy" style="border:none;padding:10px 18px">
                 <span x-show="!refreshBusy">Save New Photo</span>
-                <span x-show="refreshBusy">SavingÃ¢â‚¬Â¦</span>
+                <span x-show="refreshBusy">Saving...</span>
               </button>
             </div>
           </form>
@@ -292,7 +372,7 @@
         const el = document.createElement('div');
         el.className = 'toast ' + (type==='err' ? 'err' : 'ok');
         el.innerHTML = `<div><strong>${title}</strong><div style="font-size:12px">${msg??''}</div></div>
-                        <button class="close">Ã¢Å“â€¢</button>`;
+                        <button class="close">&times;</button>`;
         w.appendChild(el);
         requestAnimationFrame(()=>el.classList.add('show'));
         const close = ()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),180);}
@@ -343,7 +423,7 @@
           const btn = e.target.closest('[data-action]');
           if(!btn) return;
           const action = btn.dataset.action;
-          const id = btn.dataset.id;
+          let id = btn.dataset.id;
           if(!id){
             const tr = btn.closest('tr');
             id = tr?.dataset?.rowId || tr?.dataset?.id || tr?.dataset?.number;
@@ -371,7 +451,10 @@
         tab: 'pending',
         updatedAt: '',
         modalOpen: false,
-        modalHTML: '',
+        modalStudent: null,
+        modalCardHtml: '',
+        modalLoading: false,
+        modalError: '',
         refreshOpen: false,
         refreshStudent: null,
         refreshStatus: '',
@@ -394,9 +477,9 @@
           tbody.innerHTML = html;
           upgradeActionCells(tbody);
           wireDelegation(tbody, {
-            preview: id => this.openPreview(id),
-            approve: id => this.confirmAction('approve', id),
-            decline: id => this.confirmAction('decline', id),
+            preview: (id, btn) => this.openPreview(id || btn?.dataset?.id),
+            approve: (id, btn) => this.confirmAction('approve', id, { name: btn?.dataset?.name, number: btn?.dataset?.number }),
+            decline: (id, btn) => this.confirmAction('decline', id, { name: btn?.dataset?.name, number: btn?.dataset?.number }),
           });
           this.counts.pending = tbody.querySelectorAll('tr[data-row-id]').length;
           this.sel.pending = [];
@@ -413,7 +496,7 @@
           tbody.innerHTML = html;
           upgradeActionCells(tbody); // gives preview button
           wireDelegation(tbody, {
-            preview: id => this.openPreview(id),
+            preview: (id, btn) => this.openPreview(id || btn?.dataset?.id),
             refresh: (id, btn) => this.openRefresh(id, btn),
           });
           tbody.querySelectorAll('input.row-select').forEach(cb=>{
@@ -469,18 +552,54 @@
 
         async openPreview(id){
           this.modalOpen = true;
-          this.modalHTML = '<div class="meta">Loading preview...</div>';
+          this.modalLoading = true;
+          this.modalError = '';
+          this.modalStudent = null;
+          this.modalCardHtml = '';
+
+          const url = EP.preview + '?id=' + encodeURIComponent(id) + '&format=json&t=' + Date.now();
           try{
-            // Ask JSON/HTML; controller can return HTML string or JSON
-            const res = await fetch(EP.preview + '?id=' + encodeURIComponent(id) + '&t=' + Date.now(), {headers:{'Accept':'text/html,application/json'}, cache: 'no-store'});
+            const res = await fetch(url, { headers:{ 'Accept':'application/json' }, cache:'no-store' });
             const text = await res.text();
-            this.modalHTML = text || '<div class="meta">No preview available.</div>';
+            let payload = null;
+            try{
+              payload = JSON.parse(text);
+            }catch(parseErr){
+              throw new Error(text || 'Failed to load preview.');
+            }
+
+            if(!res.ok || payload?.status !== 'success'){
+              throw new Error(payload?.message || 'Failed to load preview.');
+            }
+
+            const student = payload.student || {};
+            student.id = student.id ?? id;
+            student.full_name = [student.first_name, student.middle_initial, student.last_name]
+              .filter(Boolean)
+              .join(' ')
+              .replace(/\s+/g,' ')
+              .trim();
+            if(student.status){
+              student.status_label = student.status.charAt(0).toUpperCase() + student.status.slice(1);
+            }
+
+            this.modalStudent = student;
+            this.modalCardHtml = payload.card_preview || '';
+            this.modalLoading = false;
           }catch(e){
-            this.modalHTML = '<div class="meta">Failed to load preview.</div>';
+            console.error(e);
+            this.modalError = e?.message || 'Failed to load preview.';
+            this.modalLoading = false;
           }
         },
 
-        closeModal(){ this.modalOpen = false; this.modalHTML = ''; },
+        closeModal(){
+          this.modalOpen = false;
+          this.modalStudent = null;
+          this.modalCardHtml = '';
+          this.modalError = '';
+          this.modalLoading = false;
+        },
 
         openRefresh(id, btn){
           const tr = btn?.closest?.('tr') || document.querySelector(`tr[data-row-id="${CSS.escape(id)}"]`);
@@ -640,17 +759,21 @@
           }
         },
 
-        async confirmAction(kind, id){
+        async confirmAction(kind, id, meta = {}){
+          if(!id) return;
           const verb = kind==='approve' ? 'Approve' : 'Decline';
-          if(!confirm(`${verb} this student?`)) return;
+          const descriptor = meta.name
+            ? `${meta.name}${meta.number ? ' - ' + meta.number : ''}`
+            : (meta.number ? `Student #${meta.number}` : 'this student');
 
-          // optimistic small spinner on toast
-          toast('ok', verb, 'ProcessingÃ¢â‚¬Â¦');
+          if(!confirm(`${verb} ${descriptor}?`)) return;
+
+          toast('ok', verb, 'Processing...');
           const res = await post(EP[kind], 'id=' + encodeURIComponent(id));
           const ok = (typeof res==='string' && res.trim()==='success') || (res?.status==='success');
 
           if(ok){
-            toast('ok', verb, 'Done');
+            toast('ok', verb, `${descriptor} updated`);
             await this.loadTables();
             this.updatedAt = new Date().toLocaleTimeString();
             this.closeModal();
@@ -685,6 +808,10 @@
   </script>
 </body>
 </html>
+
+
+
+
 
 
 

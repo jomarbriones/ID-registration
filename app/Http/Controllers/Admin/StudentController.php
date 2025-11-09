@@ -143,17 +143,53 @@ class StudentController extends Controller
             ->first();
 
         if (!$student) {
+            if ($request->wantsJson() || $request->query('format') === 'json') {
+                return response()->json(['status' => 'error', 'message' => 'No matching student found.'], 404);
+            }
+
             return response('<div style="padding:12px;color:#b91c1c">No matching student found.</div>', 404);
         }
 
         $photoUrl = $this->photoUrl($student->picture_path ?? $student->photo_path ?? null);
-
-        $response = response()->view('admin.partials._id_preview', [
+        $cardView = view('admin.partials._id_preview', [
             'student' => $student,
             'photoUrl' => $photoUrl,
-        ]);
+        ])->render();
 
-        // Prevent any caching so the latest template/styles are always used in the modal
+        if ($request->wantsJson() || $request->query('format') === 'json') {
+            $submittedAt = optional($student->created_at);
+
+            $payload = [
+                'status'  => 'success',
+                'student' => [
+                    'id'             => $student->id,
+                    'id_number'      => $student->id_number,
+                    'first_name'     => $student->first_name,
+                    'middle_initial' => $student->middle_initial,
+                    'last_name'      => $student->last_name,
+                    'course'         => $student->course,
+                    'gender'         => $student->gender,
+                    'blood_type'     => $student->blood_type,
+                    'address'        => $student->address,
+                    'guardian_name'  => $student->guardian_name,
+                    'parent_address' => $student->parent_address,
+                    'guardian_contact' => $student->guardian_contact,
+                    'status'         => $student->status,
+                    'photo_url'      => $photoUrl,
+                    'submitted_at'   => $submittedAt?->toIso8601String(),
+                    'submitted_at_for_display' => $submittedAt ? $submittedAt->format('M d, Y \\a\\t h:i A') : null,
+                ],
+                'card_preview' => $cardView,
+            ];
+
+            return response()
+                ->json($payload)
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+        }
+
+        $response = response($cardView);
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
@@ -236,19 +272,26 @@ class StudentController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'status'  => 'success',
-                'message' => $existing ? 'Photo verified and record updated.' : 'Registration successful',
+                'message' => $existing
+                    ? 'Details updated. An admin will re-validate your submission shortly.'
+                    : 'Registration submitted. An admin will validate your information shortly.',
                 'id'      => $student->id,
                 'similarity' => $similarity,
             ]);
         }
 
         $message = $existing
-            ? '✅ Photo verified. Your profile was updated and will be re-reviewed shortly.'
-            : '✅ Registration successful!';
+            ? 'Update received! Your ID registration details will be re-validated by the admin team and you will be notified once they approve it.'
+            : 'Success! Your ID registration was submitted and will be validated by the admin team. We will notify you once it is approved.';
+
+        $request->session()->forget('portal_user');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()
-            ->route('register')
-            ->with('success', $message);
+            ->route('login')
+            ->with('success', $message . ' You have been signed out for security - please log in again later to track the review status.');
+
     }
 
     /**
@@ -446,5 +489,6 @@ class StudentController extends Controller
         return $pdf->download('student-id-cards.pdf');
     }
 }
+
 
 

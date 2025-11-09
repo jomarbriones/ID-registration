@@ -1,5 +1,10 @@
 @forelse ($students as $s)
-<tr data-row-id="{{ $s->id }}" data-number="{{ $s->id_number }}">
+<tr data-row-id="{{ $s->id }}"
+    data-number="{{ $s->id_number }}"
+    data-first="{{ $s->first_name }}"
+    data-last="{{ $s->last_name }}"
+    data-course="{{ $s->course }}"
+    data-status="{{ $s->status }}">
   <td>{{ $s->id_number }}</td>
   <td>{{ $s->first_name }}</td>
   <td>{{ $s->last_name }}</td>
@@ -10,17 +15,20 @@
       <button type="button" class="chip chip-soft"
               data-action="preview"
               data-id="{{ $s->id }}"
-              data-number="{{ $s->id_number }}">Preview</button>
+              data-number="{{ $s->id_number }}"
+              data-name="{{ $s->first_name }} {{ $s->last_name }}">Preview</button>
 
       <button type="button" class="chip chip-emerald"
               data-action="approve"
               data-id="{{ $s->id }}"
-              data-number="{{ $s->id_number }}">Approve</button>
+              data-number="{{ $s->id_number }}"
+              data-name="{{ $s->first_name }} {{ $s->last_name }}">Approve</button>
 
       <button type="button" class="chip chip-outline"
               data-action="decline"
               data-id="{{ $s->id }}"
-              data-number="{{ $s->id_number }}">Decline</button>
+              data-number="{{ $s->id_number }}"
+              data-name="{{ $s->first_name }} {{ $s->last_name }}">Decline</button>
     </div>
   </td>
 </tr>

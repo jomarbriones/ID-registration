@@ -83,6 +83,45 @@ class PortalAuthController extends Controller
         return view('auth.register');
     }
 
+    public function checkStudent(Request $request)
+    {
+        $studentNumber = trim((string) $request->query('student_number', ''));
+        $digits = preg_replace('/[^0-9]/', '', $studentNumber);
+
+        if (strlen($digits) !== 9) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please provide all 9 digits of your student number.',
+            ], 422);
+        }
+
+        $enrolled = EnrolledStudent::where('student_number', $digits)
+            ->orWhereRaw("REPLACE(student_number,'-','') = ?", [$digits])
+            ->first();
+        if (!$enrolled) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Student number not found in the CvSU Naic registry.',
+            ], 404);
+        }
+
+        $alreadyUser = User::where('student_number', $digits)
+            ->orWhereRaw("REPLACE(student_number,'-','') = ?", [$digits])
+            ->exists();
+
+        if ($alreadyUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This student number already has an account.',
+            ], 409);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Student number located in the campus registry. Continue creating your account.',
+        ]);
+    }
+
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -123,14 +162,7 @@ class PortalAuthController extends Controller
             'student_number'  => $normalized,
         ]);
 
-        session(['portal_user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'role' => $user->role,
-            'student_number' => $user->student_number,
-        ]]);
-
-        return redirect()->route('students.register')->with('success', 'Account created. You are now logged in.');
+        return redirect()->route('login')->with('success', 'Your account was created successfully! Please log in to continue.');
     }
 
     public function logout(Request $request)
