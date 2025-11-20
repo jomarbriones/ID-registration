@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\FacultyController;
+use App\Http\Controllers\Admin\EnrolledStudentController;
 use App\Http\Controllers\Auth\PortalAuthController;
 use App\Http\Middleware\PortalAuth;
 use App\Http\Middleware\AdminOnly;
@@ -75,4 +77,21 @@ Route::prefix('admin/students')
         // Print-ready PDF of multiple IDs
         Route::get('/print', [StudentController::class, 'print'])
             ->name('students.print');
+    });
+
+Route::prefix('admin/enrolled-students')
+    ->middleware([PortalAuth::class, AdminOnly::class])
+    ->group(function () {
+        Route::get('/count', [EnrolledStudentController::class, 'count'])->name('enrolled.count');
+        Route::post('/import', [EnrolledStudentController::class, 'import'])->name('enrolled.import');
+    });
+
+Route::prefix('admin/faculty')
+    ->middleware([PortalAuth::class, AdminOnly::class])
+    ->group(function () {
+        Route::get('/list', [FacultyController::class, 'list'])->name('faculty.list');
+        Route::post('/', [FacultyController::class, 'store'])->name('faculty.store');
+        Route::get('/preview', [FacultyController::class, 'preview'])->name('faculty.preview');
+        Route::get('/print', [FacultyController::class, 'print'])->name('faculty.print');
+        Route::post('/delete', [FacultyController::class, 'destroy'])->name('faculty.delete');
     });

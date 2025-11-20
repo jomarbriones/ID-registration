@@ -12,31 +12,48 @@
   </script>
   <script src="{{ asset('js/face-verifier.js') }}"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    @media(max-width:640px){
+      body{
+        background:radial-gradient(circle at 20% 20%, #ecfdf3 0, #f6fff9 30%, #f9fbff 100%);
+      }
+      .form-shell{
+        border-radius:26px;
+        box-shadow:0 20px 60px rgba(15,23,42,.14);
+      }
+      .form-shell .card-section{
+        padding:14px;
+      }
+      .mobile-stepper{padding:14px 16px 6px;}
+      .mobile-form{padding:16px;}
+      .mobile-form .grid{gap:12px;}
+    }
+  </style>
 </head>
-<body class="bg-emerald-50/20 min-h-screen antialiased">
+<body class="min-h-screen antialiased bg-gradient-to-br from-emerald-50 via-white to-emerald-50/60 flex flex-col">
   <!-- Header -->
-  <header class="border-b bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+  <header class="border-b bg-white shadow-sm">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-full bg-emerald-600 text-white grid place-items-center font-bold">ID</div>
+        <div class="h-10 w-10 rounded-xl bg-emerald-600 text-white grid place-items-center font-bold shadow-md">ID</div>
         <div>
           <h1 class="text-base font-semibold text-slate-800">University ID Registration</h1>
           <p class="text-xs text-slate-500">Registrar's Office</p>
         </div>
       </div>
-      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-3 py-1">
         <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Secure form
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl px-4 py-8">
-    <div x-data="wizard()" x-init="initFromServer()" class="grid lg:grid-cols-3 gap-8">
+  <main class="flex-1 flex items-center justify-center px-4 sm:px-6 py-6 sm:py-10">
+    <div x-data="wizard()" x-init="initFromServer()" class="w-full max-w-lg sm:max-w-4xl grid grid-cols-1 gap-8">
       <!-- Main card -->
-      <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-md ring-1 ring-emerald-900/10 overflow-hidden">
+      <div class="col-span-1">
+        <div class="bg-white rounded-3xl shadow-xl ring-1 ring-emerald-900/10 overflow-hidden form-shell">
           <!-- Progress + stepper -->
-          <div class="px-6 pt-6">
+          <div class="px-6 pt-6 card-section mobile-stepper">
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-semibold text-slate-800">Student ID Registration</h2>
               <span class="text-xs text-slate-600" x-text="`Step ${step+1} of 3`"></span>
@@ -46,7 +63,7 @@
                 <template x-for="(label,idx) in ['Info','Photo','Confirm']" :key="idx">
                   <li class="flex items-center gap-2">
                     <div class="h-8 w-8 rounded-full border-2 font-semibold flex items-center justify-center"
-                         :class="step>=idx ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-slate-300 text-slate-400'">
+                         :class="step>=idx ? 'border-emerald-600 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-300 text-slate-400'">
                       <span x-text="idx+1"></span>
                     </div>
                     <span class="text-sm" :class="step>=idx ? 'text-emerald-700 font-medium' : 'text-slate-500'" x-text="label"></span>
@@ -54,7 +71,7 @@
                 </template>
               </ol>
               <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-600 transition-[width] duration-300" :style="`width:${progress}%`"></div>
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-[width] duration-300" :style="`width:${progress}%`"></div>
               </div>
 
               @if (session('success'))
@@ -79,7 +96,7 @@
           </div>
 
           <!-- Form -->
-          <form class="p-6 space-y-6 md:space-y-7" method="POST" action="{{ route('students.submit') }}" enctype="multipart/form-data" @submit="onSubmit($event)">
+          <form class="p-6 space-y-6 md:space-y-7 mobile-form" method="POST" action="{{ route('students.submit') }}" enctype="multipart/form-data" @submit="onSubmit($event)">
             @csrf
 
             <!-- STEP 1 -->
@@ -297,43 +314,6 @@
         </div>
       </div>
 
-      <!-- Aside (desktop only) -->
-      <aside class="hidden lg:block">
-        <div class="space-y-6 lg:sticky lg:top-6">
-          <div class="bg-white rounded-2xl shadow-md ring-1 ring-emerald-900/10 p-5" x-show="step>=1" x-transition.opacity x-cloak>
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-semibold text-slate-800">Uploaded Photo</h3>
-              <span class="text-xs text-slate-500" x-show="!photoUrl">No photo</span>
-            </div>
-            <button type="button" class="w-full block group focus:outline-none" :disabled="!photoUrl" @click="openLightbox(photoUrl)" :class="{'cursor-zoom-in': !!photoUrl, 'cursor-not-allowed opacity-60': !photoUrl}">
-              <div class="aspect-square w-full overflow-hidden rounded-xl border-2 border-slate-300 bg-slate-50 flex items-center justify-center">
-                <template x-if="photoUrl">
-                  <img :src="photoUrl" alt="Uploaded Photo Preview" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-150">
-                </template>
-                <template x-if="!photoUrl">
-                  <div class="text-slate-400 text-sm py-12">No photo selected</div>
-                </template>
-              </div>
-              <p class="mt-2 text-xs text-emerald-700" x-show="photoUrl">Click to view full screen</p>
-            </button>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-md ring-1 ring-emerald-900/10 p-5">
-            <h3 class="text-sm font-semibold text-slate-800">Submission Tips</h3>
-            <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside pl-1">
-              <li>Use your official student number.</li>
-              <li>Names must match school records.</li>
-              <li>Photo needs a white background with even lighting.</li>
-            </ul>
-            <div class="mt-5 text-xs text-slate-500">Questions? Visit the Registrar office.</div>
-          </div>
-
-          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/60 rounded-2xl ring-1 ring-emerald-900/10 p-5">
-            <h3 class="text-sm font-semibold text-emerald-900">Processing Time</h3>
-            <p class="mt-2 text-xs text-emerald-900/80">Submissions are reviewed within 3&ndash;5 working days. You'll be notified when your ID is ready.</p>
-          </div>
-        </div>
-      </aside>
 
       <!-- Fullscreen Lightbox -->
       <div x-cloak x-show="lightboxOpen" x-transition.opacity @keydown.escape.window="closeLightbox" @click.self="closeLightbox" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">

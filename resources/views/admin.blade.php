@@ -26,11 +26,11 @@
       --shadow:0 18px 60px rgba(15,23,42,.12);
     }
     body.theme-dark{
-      --ink:#e2e8f0;
-      --muted:#94a3b8;
+      --ink:#e8edf6;
+      --muted:#a6b3c7;
       --panel:#0f172a;
       --bg:#0b1220;
-      --ring:#1e293b;
+      --ring:#1f2937;
     }
     body.theme-dark{
       color:var(--ink);
@@ -110,7 +110,7 @@
     .nav-exit:hover{background:#eef2ff;}
 
     /* Card */
-    .card{background:var(--panel);border:1px solid rgba(15,23,42,.05);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
+    .card{background:var(--panel);border:1px solid rgba(15,23,42,.08);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
     .card-fixed{width:960px;min-width:960px;max-width:960px;flex:0 0 960px;position:relative;}
     .card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(15,23,42,.05)}
     .card-hd h2{font-size:18px}
@@ -123,7 +123,7 @@
     .hero-title{font-size:22px;font-weight:800;margin:2px 0;}
     .hero-meta{font-size:13px;color:var(--muted);}
     .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:18px 20px;}
-    .stat-card{padding:14px;border-radius:14px;background:#fff;border:1px solid rgba(15,23,42,.05);box-shadow:0 12px 30px rgba(15,23,42,.08);}
+    .stat-card{padding:14px;border-radius:14px;background:#fff;border:1px solid rgba(15,23,42,.08);box-shadow:0 16px 30px rgba(15,23,42,.12);}
     .stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
     .stat-value{font-size:26px;font-weight:800;margin:6px 0;}
     .stat-sub{font-size:13px;color:var(--muted);}
@@ -133,13 +133,13 @@
     .chart-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:14px;padding:16px;box-shadow:0 12px 30px rgba(15,23,42,.08);display:flex;flex-direction:column;gap:10px}
     .chart-title{font-weight:800;font-size:15px;color:#0f172a}
     .chart-sub{font-size:13px;color:var(--muted)}
-    .bar-chart{display:flex;align-items:flex-end;gap:10px;height:140px;}
-    .bar{flex:1;min-height:10px;border-radius:10px 10px 6px 6px;position:relative;background:linear-gradient(180deg,#0ea5e9,#0f172a);}
-    .bar.pending{background:linear-gradient(180deg,#f97316,#fb923c);}
-    .bar.approved{background:linear-gradient(180deg,#16a34a,#15803d);}
-    .bar.faculty{background:linear-gradient(180deg,#4f46e5,#312e81);}
-    .bar span{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-weight:800;font-size:13px;color:#fff;}
-    .bar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);white-space:nowrap;}
+    .bar-chart{display:flex;align-items:flex-end;gap:10px;height:140px;margin-bottom:10px;}
+    .bar{flex:1;min-height:12px;border-radius:12px;position:relative;background:linear-gradient(180deg,#0ea5e9,#0f172a);box-shadow:0 10px 18px rgba(15,23,42,.12);}
+    .bar.pending{background:linear-gradient(180deg,#fb923c,#f97316);}
+    .bar.approved{background:linear-gradient(180deg,#22c55e,#15803d);}
+    .bar.faculty{background:linear-gradient(180deg,#6366f1,#312e81);}
+    .bar span{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-weight:800;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);}
+    .bar-label{display:none;}
     .chart-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
     .legend-item{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb}
     .legend-dot{height:10px;width:10px;border-radius:999px;display:inline-block}
@@ -149,6 +149,98 @@
     .progress-track{height:14px;border-radius:999px;background:#e5e7eb;overflow:hidden;position:relative;}
     .progress-fill{height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);border-radius:999px;transition:width .2s;min-width:4%}
     .progress-meta{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:6px;flex-wrap:wrap}
+    /* Responsive */
+    @media(max-width:960px){
+      .wrap{padding:16px 18px 30px;}
+      .hero-banner{flex-direction:column;gap:10px;}
+      .stat-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+      .canvas-grid{grid-template-columns:1fr;gap:10px;}
+      .chart-card{padding:12px;}
+      .card-bd{padding:14px;}
+      .side{position:static;top:auto;}
+      .nav-footer{justify-content:flex-start;gap:8px;}
+    }
+    @media(max-width:640px){
+      .topbar{flex-direction:column;align-items:flex-start;gap:10px;}
+      .stats-grid{grid-template-columns:1fr;}
+      .hero-title{font-size:20px;}
+      .search{width:100%;}
+      .chart-legend{justify-content:flex-start;}
+      .wizard-head{flex-direction:column;align-items:flex-start;}
+      .wizard-progress{width:100%;}
+      .grid{gap:14px;}
+      .card-hd{padding:12px;}
+      .card-bd{padding:12px;}
+      .stat-card{padding:12px;}
+      .side{width:88vw;border-radius:20px;}
+      .nav{gap:10px;}
+      .navbtn{padding:12px 14px;}
+      .nav-footer{padding:14px 10px;}
+      .chart-card{padding:12px;}
+      .hero-banner{padding:16px;}
+      .hero-meta{font-size:12px;}
+      .bar-chart{height:120px;}
+      .toast-wrap{right:10px;top:10px;}
+    }
+    /* Dark tweaks */
+    body.theme-dark .card,
+    body.theme-dark .settings-panel,
+    body.theme-dark .settings-nav,
+    body.theme-dark .stat-card,
+    body.theme-dark .chart-card,
+    body.theme-dark .wizard-shell{background:#0f172a;border-color:#1f2a3c;box-shadow:0 18px 48px rgba(0,0,0,.45);}
+    body.theme-dark .stat-label,
+    body.theme-dark .chart-sub,
+    body.theme-dark .section-sub,
+    body.theme-dark .meta{color:#cbd5e1;}
+    body.theme-dark .bar-chart{background:transparent;}
+    body.theme-dark .appearance-card{background:#182235;border-color:#1f2a3c;}
+    body.theme-dark .navbtn{color:#e2e8f0;}
+    body.theme-dark .navbtn.active{background:#0ea5e933;color:#e2e8f0;box-shadow:inset 0 0 0 1px #0ea5e9;}
+    body.theme-dark .navbtn:hover{background:#111b2e;}
+    body.theme-dark .nav-user-role{color:#cbd5e1;}
+    body.theme-dark .nav-icon{color:#8fb5ff;}
+    body.theme-dark .side{background:#0d1423;border-color:#1f2a3c;}
+    body.theme-dark .navbtn .notify-dot{box-shadow:0 0 0 2px #0d1423;}
+    body.theme-dark .hero-banner{background:linear-gradient(135deg,#0f172a 0%,#0b1220 100%);color:#e8edf6;border-color:#1f2a3c;}
+    body.theme-dark .hero-title{color:#e8edf6;}
+    body.theme-dark .hero-meta{color:#cbd5e1;}
+    body.theme-dark .stat-value{color:#f8fafc;}
+    body.theme-dark .stat-sub{color:#cbd5e1;}
+    body.theme-dark .search,
+    body.theme-dark .text-input,
+    body.theme-dark .text-select{background:#0f192c;border-color:#1f2a3c;color:#e8edf6;box-shadow:none;}
+    body.theme-dark .search::placeholder,
+    body.theme-dark .text-input::placeholder{color:#94a3b8;}
+    body.theme-dark .chip{box-shadow:none;}
+    body.theme-dark .chip-soft{background:#1f2d47;color:#e8edf6;border-color:#30415f;}
+    body.theme-dark .chip-outline{background:#1f2d47;color:#fca5a5;border-color:#f87171;}
+    body.theme-dark .progress-track{background:#1f2a3c;}
+    body.theme-dark .legend-item{background:#1f2a3c;border-color:#2c3b55;color:#cbd5e1;}
+    body.theme-dark thead th{color:#e8edf6;}
+    body.theme-dark .hero-card .stat-card{background:#0f172a;}
+    body.theme-dark .placeholder-box{background:#111b2e;color:#cbd5e1;border-color:#1f2a3c;}
+    body.theme-dark .hero-card{background:#0b1220;border-color:#1f2a3c;}
+    body.theme-dark .stat-card{background:#0f192c;}
+    body.theme-dark .helper-pill,
+    body.theme-dark .count-pill{background:#182235;border-color:#2c3b55;color:#cbd5e1;}
+    body.theme-dark .pill-note{background:#182235;border-color:#2c3b55;color:#cbd5e1;}
+    body.theme-dark .wizard-head{background:#0f192c;border-color:#1f2a3c;}
+    body.theme-dark .wizard-shell{background:#0c1526;}
+    body.theme-dark .progress-track{background:#1f2a3c;}
+    body.theme-dark .settings-nav button{background:#0f192c;border-color:#1f2a3c;color:#e8edf6;}
+    body.theme-dark .settings-nav button .dot{background:#2c3b55;}
+    body.theme-dark .settings-nav button.active{background:#0ea5e933;border-color:#0ea5e9;color:#e8edf6;}
+    body.theme-dark .settings-nav button.active .dot{background:#0ea5e9;}
+    body.theme-dark .appearance-card{background:#182235;border-color:#2c3b55;}
+    body.theme-dark .modal{background:#0f172a;border-color:#1f2a3c;}
+    body.theme-dark .profile-menu{background:#0f172a;border-color:#1f2a3c;}
+    body.theme-dark .chip-emerald{background:#1fb36a;}
+    body.theme-dark .helper-pill,
+    body.theme-dark .count-pill{color:#dbe3f1;}
+    body.theme-dark .chart-card,
+    body.theme-dark .wizard-shell,
+    body.theme-dark .card{border-color:#1f2a3c;}
 
     /* Search */
     .search{width:320px;max-width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--ring);outline:none;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.05);}
@@ -157,29 +249,56 @@
     /* Table */
     table{width:100%;border-collapse:collapse}
     thead th{font-size:12px;text-align:left;color:#0f5132;background:#edfbf2;border-bottom:1px solid rgba(15,23,42,.05);padding:10px}
-    tbody td{padding:10px;border-bottom:1px solid rgba(15,23,42,.05)}
+    tbody td{padding:10px;border-bottom:1px solid rgba(15,23,42,.08);color:var(--ink);}
     tbody tr:hover td{background:#f8fafc}
+    body.theme-dark table thead th{background:#0b1f36;color:#cbd5e1;border-color:#1f2a3c;}
+    body.theme-dark table tbody td{border-color:#1f2a3c;color:#e8edf6;}
+    body.theme-dark tbody tr:hover td{background:#14233a;}
 
     /* Buttons */
     .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;line-height:1;border-radius:999px;padding:10px 14px;border:1px solid transparent;cursor:pointer;transition:.15s;box-shadow:0 10px 26px rgba(15,23,42,.08)}
     .chip-emerald{background:var(--emerald);color:#fff}.chip-emerald:hover{background:var(--emerald-700)}
     .chip-outline{background:#fff;border-color:#fecdd3;color:#be123c}.chip-outline:hover{background:#fff0f3}
     .chip-soft{background:#eef2ff;color:#3730a3}.chip-soft:hover{background:#e0e7ff}
+    .chip:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(15,23,42,.12);}
+    body.theme-dark .chip-outline{background:#1f2d47;color:#fca5a5;border-color:#f87171}
+    body.theme-dark .chip-outline:hover{background:#2a3a58;}
+    body.theme-dark .chip-soft{background:#1f2d47;color:#e8edf6;border-color:#30415f;}
+    body.theme-dark .chip-soft:hover{background:#243455;}
+    body.theme-dark .chip-emerald:hover{background:#16c15a;}
 
     .helper-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:#f8fafc;border:1px solid var(--ring);color:var(--muted);font-size:12px;line-height:1.2}
     .count-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:12px;font-weight:700;line-height:1}
     /* Settings */
     .settings-grid{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
     @media(max-width:960px){.settings-grid{grid-template-columns:1fr}}
-    .settings-nav{background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
-    .settings-nav button{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--ring);background:#fff;font-weight:600;cursor:pointer;text-align:left;transition:.12s}
+    .settings-nav{background:var(--panel);border:1px solid var(--ring);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 26px rgba(15,23,42,.06)}
+    .settings-nav button{display:flex;align-items:center;gap:8px;width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:#fff;font-weight:700;cursor:pointer;text-align:left;transition:.12s;color:#0f172a}
     .settings-nav button .dot{height:12px;width:12px;border-radius:999px;background:#cbd5e1;display:inline-block}
-    .settings-nav button.active{background:#e0f2fe;border-color:#bfdbfe;color:#0ea5e9}
-    .settings-nav button.active .dot{background:#0ea5e9}
-    .settings-panel{background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
-    .settings-panel h3{margin:0 0 6px;font-size:16px}
+    .settings-nav button.active{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+    .settings-nav button.active .dot{background:#16a34a}
+    .settings-panel{background:var(--panel);border:1px solid var(--ring);border-radius:14px;padding:16px;box-shadow:0 10px 22px rgba(15,23,42,.06)}
+    .settings-panel h3{margin:0 0 6px;font-size:18px}
     .settings-panel .section-sub{color:var(--muted);font-size:13px;margin-bottom:14px}
     .settings-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .manage-btn{margin-bottom:12px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid #a7f3d0;background:#ecfdf5;color:#065f46;font-weight:800;cursor:pointer;box-shadow:0 10px 20px rgba(6,95,70,.12);}
+    .toggle{width:56px;height:28px;border-radius:999px;position:relative;cursor:pointer;border:1px solid #cbd5e1;background:#e5e7eb;transition:.2s;display:inline-flex;align-items:center;padding:3px;}
+    .toggle::after{content:'';width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:.2s;}
+    .toggle.on{background:linear-gradient(90deg,#16a34a,#0ea5e9);border-color:transparent;}
+    .toggle.on::after{transform:translateX(28px);}
+    .appearance-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid var(--ring);border-radius:14px;background:#f8fafc;}
+    .hamburger{display:none;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;border:1px solid var(--ring);background:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,.12);}
+    .hamburger span{display:block;width:18px;height:2px;background:#0f172a;border-radius:4px;position:relative;}
+    .hamburger span::before,.hamburger span::after{content:'';position:absolute;left:0;width:18px;height:2px;background:#0f172a;border-radius:4px;}
+    .hamburger span::before{top:-6px;}
+    .hamburger span::after{top:6px;}
+    .nav-overlay{position:fixed;inset:0;background:rgba(2,6,23,.45);backdrop-filter:blur(2px);z-index:70;display:none;}
+    @media(max-width:960px){
+      .hamburger{display:flex;}
+      .side{position:fixed;top:70px;left:0;height:calc(100vh - 70px);z-index:80;transform:translateX(-110%);transition:transform .2s ease;}
+      .side.open{transform:translateX(0);}
+      .nav-overlay{display:block;}
+    }
     .top-actions{display:flex;align-items:center;gap:12px}
     .avatar-btn{height:40px;width:40px;border-radius:999px;overflow:hidden;border:2px solid var(--ring);cursor:pointer;display:flex;align-items:center;justify-content:center;background:#ecfdf5}
     .avatar-btn img{height:100%;width:100%;object-fit:cover}
@@ -253,6 +372,9 @@
     <div class="wrap" x-data="adminApp()" x-init="boot()">
     <!-- top -->
     <div class="topbar">
+      <button class="hamburger" @click="navOpen = !navOpen" aria-label="Toggle navigation">
+        <span></span>
+      </button>
       <div class="brand">
         <div class="logo" style="background:#065f46">
           <img src="{{ asset('images/CvSU-navbar-Logo-PNG.png') }}" alt="University logo" style="height:100%;width:100%;object-fit:cover;border-radius:999px">
@@ -303,9 +425,11 @@
       </div>
     </div>
 
+    <div class="nav-overlay" x-show="navOpen && isMobile" x-transition.opacity @click="navOpen=false" x-cloak></div>
+
     <div class="grid">
       <!-- sidebar -->
-      <aside class="side">
+      <aside class="side" :class="{'open': navOpen}">
         <div class="sidetop">
           <img src="{{ asset('images/CvSU-navbar-Logo-PNG.png') }}" alt="" style="height:34px;width:34px;border-radius:8px;background:#fff;padding:6px;border:1px solid var(--ring)">
           <div>
@@ -361,8 +485,8 @@
 
         <div class="nav-footer">
           <div class="nav-user">
-            <div class="nav-user-avatar">
-              <img :src="currentUser?.photo_url || defaultAvatar" alt="Profile avatar">
+           <div class="nav-user-avatar">
+              <img :src="accountPhotoUrl || currentUser?.photo_url || defaultAvatar" alt="Profile avatar">
             </div>
             <div>
               <div class="nav-user-name" x-text="currentUser?.name || 'Admin User'"></div>
@@ -423,17 +547,14 @@
                 <div class="chart-title">Pipeline overview</div>
                 <div class="chart-sub">Relative volume of pending, approved, and faculty IDs.</div>
                 <div class="bar-chart">
-                  <div class="bar pending" :style="`height:${Math.max(12,(counts.pending||0)*6)}px`">
+                  <div class="bar pending" :style="`height:${Math.min(140,Math.max(14,(counts.pending||0)*6))}px`">
                     <span x-text="counts.pending || 0"></span>
-                    <div class="bar-label">Pending</div>
                   </div>
-                  <div class="bar approved" :style="`height:${Math.max(12,(counts.approved||0)*6)}px`">
+                  <div class="bar approved" :style="`height:${Math.min(140,Math.max(14,(counts.approved||0)*6))}px`">
                     <span x-text="counts.approved || 0"></span>
-                    <div class="bar-label">Approved</div>
                   </div>
-                  <div class="bar faculty" :style="`height:${Math.max(12,(counts.faculty||0)*6)}px`">
+                  <div class="bar faculty" :style="`height:${Math.min(140,Math.max(14,(counts.faculty||0)*6))}px`">
                     <span x-text="counts.faculty || 0"></span>
-                    <div class="bar-label">Faculty</div>
                   </div>
                 </div>
                 <div class="chart-legend">
@@ -712,9 +833,10 @@
                   <div>
                     <h3>Personal information</h3>
                     <div class="section-sub">Update your profile details. This is shared with other admins.</div>
+                    <button type="button" class="manage-btn" @click="accountLocked=false">Manage account</button>
                     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-                      <label class="chip chip-soft" style="cursor:pointer; border:1px dashed var(--ring);">
-                        <input type="file" accept="image/*" x-ref="accountPhoto" @change="handleAccountPhoto($event)" style="display:none">
+                      <label class="chip chip-soft" style="cursor:pointer; border:1px dashed var(--ring);" :class="{'chip-soft': !accountLocked, 'chip': accountLocked}" :style="accountLocked ? 'opacity:.6;pointer-events:none;' : ''">
+                        <input type="file" accept="image/*" x-ref="accountPhoto" @change="handleAccountPhoto($event)" style="display:none" :disabled="accountLocked">
                         <span>Upload profile picture</span>
                       </label>
                       <div class="meta" x-show="accountPhotoName" x-text="accountPhotoName"></div>
@@ -722,36 +844,36 @@
                     <div class="settings-form">
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">First name</label>
-                        <input type="text" class="search" style="width:100%" x-model="accountFirst" placeholder="First name">
+                        <input type="text" class="search" style="width:100%" x-model="accountFirst" placeholder="First name" :disabled="accountLocked">
                       </div>
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">Last name</label>
-                        <input type="text" class="search" style="width:100%" x-model="accountLast" placeholder="Last name">
+                        <input type="text" class="search" style="width:100%" x-model="accountLast" placeholder="Last name" :disabled="accountLocked">
                       </div>
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">Email / username</label>
-                        <input type="text" class="search" style="width:100%" x-model="accountUsername" placeholder="admin email or username">
+                        <input type="text" class="search" style="width:100%" x-model="accountUsername" placeholder="admin email or username" :disabled="accountLocked">
                       </div>
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">Display name</label>
-                        <input type="text" class="search" style="width:100%" x-model="accountName" placeholder="Name shown to users">
+                        <input type="text" class="search" style="width:100%" x-model="accountName" placeholder="Name shown to users" :disabled="accountLocked">
                       </div>
                     </div>
                     <div class="settings-form" style="margin-top:8px">
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">Current password</label>
-                        <input type="password" class="search" style="width:100%" x-model="accountPassCurrent" placeholder="Current password">
+                        <input type="password" class="search" style="width:100%" x-model="accountPassCurrent" placeholder="Current password" :disabled="accountLocked">
                       </div>
                       <div>
                         <label style="display:block;font-weight:700;font-size:13px">New password</label>
-                        <input type="password" class="search" style="width:100%" x-model="accountPassNew" placeholder="New password">
+                        <input type="password" class="search" style="width:100%" x-model="accountPassNew" placeholder="New password" :disabled="accountLocked">
                       </div>
                     </div>
                     <div class="meta" style="color:#b91c1c;margin-top:8px" x-show="accountError" x-text="accountError"></div>
                     <div class="meta" style="color:#047857;font-weight:600;margin-top:4px" x-show="accountStatus" x-text="accountStatus"></div>
                     <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
                       <button type="button" class="chip chip-outline" @click="resetAccount" :disabled="accountBusy">Cancel</button>
-                      <button type="button" class="chip chip-emerald" style="border:none;padding:10px 18px" :disabled="accountBusy"
+                      <button type="button" class="chip chip-emerald" style="border:none;padding:10px 18px" :disabled="accountBusy || accountLocked"
                               @click="saveAccount">
                         <span x-show="!accountBusy">Save</span>
                         <span x-show="accountBusy">Saving...</span>
@@ -801,11 +923,12 @@
                   <div>
                     <h3>Appearance</h3>
                     <div class="section-sub">Switch theme to reduce glare. Your preference is remembered on this device.</div>
-                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-                      <label class="chip chip-soft" style="gap:10px;cursor:pointer;">
-                        <input type="checkbox" x-model="isDarkMode" @change="toggleTheme" style="accent-color:#0ea5e9">
-                        <span x-text="isDarkMode ? 'Dark mode on' : 'Dark mode off'"></span>
-                      </label>
+                    <div class="appearance-card">
+                      <div>
+                        <div style="font-weight:700;margin-bottom:4px">Dark mode</div>
+                        <div class="section-sub" style="margin:0;">Match university palette for low-light viewing.</div>
+                      </div>
+                      <button type="button" class="toggle" :class="{on:isDarkMode}" @click="isDarkMode=!isDarkMode; toggleTheme()" aria-label="Toggle dark mode"></button>
                     </div>
                   </div>
                 </template>
@@ -1057,6 +1180,8 @@
         currentUser,
         defaultAvatar: @json(asset('images/CvSU-navbar-Logo-PNG.png')),
         profileMenuOpen: false,
+        navOpen: window.innerWidth >= 960,
+        isMobile: window.innerWidth < 960,
         updatedAt: '',
         facultyUpdatedAt: '',
         rosterStatus: '',
@@ -1072,6 +1197,8 @@
         accountPassCurrent: '',
         accountPassNew: '',
         accountPhotoName: '',
+        accountPhotoUrl: currentUser?.photo_url || '',
+        accountLocked: true,
         accountStatus: '',
         accountError: '',
         accountBusy: false,
@@ -1110,6 +1237,8 @@
           if(storedTheme === 'dark'){ this.isDarkMode = true; }
           if(storedTheme === 'light'){ this.isDarkMode = false; }
           this.applyTheme();
+          this.handleResize();
+          window.addEventListener('resize', () => this.handleResize());
 
           await this.loadTables();
           await this.loadFacultyTable();
@@ -1259,6 +1388,11 @@
         handleAccountPhoto(ev){
           const file = ev.target?.files?.[0];
           this.accountPhotoName = file?.name || '';
+          if(file){
+            this.accountPhotoUrl = URL.createObjectURL(file);
+          }else{
+            this.accountPhotoUrl = currentUser?.photo_url || '';
+          }
         },
 
         saveAccount(){
@@ -1273,7 +1407,9 @@
           setTimeout(()=>{
             this.accountBusy = false;
             this.accountStatus = 'Profile changes queued (not yet wired to backend).';
+            // keep showing chosen avatar locally
             toast('ok', 'Saved', 'Profile changes recorded locally.');
+            this.accountLocked = true;
           }, 400);
         },
 
@@ -1285,9 +1421,11 @@
           this.accountPassCurrent = '';
           this.accountPassNew = '';
           this.accountPhotoName = '';
+          this.accountPhotoUrl = currentUser?.photo_url || '';
           if(this.$refs?.accountPhoto){ this.$refs.accountPhoto.value=''; }
           this.accountError = '';
           this.accountStatus = '';
+          this.accountLocked = true;
         },
 
         openSettingsTab(which){
@@ -1316,6 +1454,16 @@
           this.isDarkMode = !!prefersDark;
           this.applyTheme();
           setTimeout(()=>{ this.themeResetting = false; }, 200);
+        },
+
+        handleResize(){
+          this.isMobile = window.innerWidth < 960;
+          if(!this.isMobile){
+            this.navOpen = true;
+          }else{
+            this.navOpen = false;
+            this.profileMenuOpen = false;
+          }
         },
 
         resetFacultyForm(){
@@ -1884,10 +2032,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-

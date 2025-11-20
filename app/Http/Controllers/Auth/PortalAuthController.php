@@ -153,10 +153,22 @@ class PortalAuthController extends Controller
 
         // Normalize storage to the formatted version from registry if available
         $normalized = $enrolled?->student_number ?? $digits;
+        $name = $enrolled->full_name;
+        if (!$name) {
+            $middle = $enrolled?->middle_initial;
+            $name = trim(
+                ($enrolled?->first_name ?? '')
+                . ' '
+                . ($middle ? ($middle . (str_ends_with($middle, '.') ? '' : '.')) . ' ' : '')
+                . ($enrolled?->last_name ?? '')
+            );
+        }
+        $name = $name !== '' ? $name : 'Student '.$digits;
+        $emailNumber = preg_replace('/[^0-9]/', '', $normalized) ?: $digits;
 
         $user = User::create([
-            'name'            => $enrolled->full_name ?? 'Student '.$digits,
-            'email'           => $digits.'@portal.local',
+            'name'            => $name,
+            'email'           => $emailNumber.'@portal.local',
             'password'        => $data['password'],
             'role'            => 'student',
             'student_number'  => $normalized,

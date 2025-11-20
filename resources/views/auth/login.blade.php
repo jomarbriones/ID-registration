@@ -25,7 +25,6 @@
       <section class="auth-illustration">
         <div>
           <div class="flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
-            <span class="h-10 w-10 rounded-full bg-white/15 grid place-items-center font-semibold">CvSU</span>
             Cavite State University - Naic
           </div>
           <h2 class="mt-6">Student ID Registration Portal</h2>
@@ -84,7 +83,7 @@
             <input id="identifier" name="identifier" type="text" inputmode="numeric" maxlength="64"
                    value="{{ old('identifier') }}" placeholder="Student number or email" required autofocus>
             <label for="identifier">Student Number or Admin Email</label>
-            <p class="form-hint">Use your 9-digit student number (e.g., 202110512) or admin email.</p>
+            <p class="form-hint">Use your 9-digit student number (e.g., 202510123) or admin email.</p>
           </div>
           @error('identifier')<p class="form-error">{{ $message }}</p>@enderror
 
@@ -117,10 +116,6 @@
             <a href="{{ route('create-account') }}" class="btn-secondary w-full text-center">Create an account</a>
           </div>
         </form>
-
-        <div class="rounded-2xl bg-[#EEF2F5] px-4 py-3 text-sm text-neutral-600">
-          <span class="font-semibold text-emerald-700">Tip:</span> Press <kbd class="rounded bg-white px-1">Enter</kbd> to submit. The form is keyboard-friendly so Tab moves through fields in order.
-        </div>
       </section>
     </div>
   </div>

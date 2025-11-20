@@ -33,7 +33,7 @@
 <body>
   <div class="card">
     <div class="a">
-      <img src="{{ asset('images/CvSU-navbar-Logo-PNG.png') }}" alt="CvSU" style="height:54px">
+      <img src="{{ asset('images/CvSU-navbar-Logo-PNG.png') }}" style="height:54px">
       <div class="kicker">Cavite State University Naic</div>
       <h1>Student ID Registration Portal</h1>
       <p>Register for your official university ID. Students sign in to access the registration form. Admins sign in to manage approvals.</p>
